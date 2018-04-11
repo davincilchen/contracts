@@ -3,7 +3,7 @@ let EthUtils = require('ethereumjs-util');
 let env = require('./env');
 
 let web3Url = 'http://' + env.web3Host + ':' + env.web3Port;
-let web3 = new Web3(new Web3.providers.HttpProvider(env.web3Url));
+let web3 = new Web3(new Web3.providers.HttpProvider(web3Url));
 const privatekey = env.privateKey;
 const publickey = '0x' + EthUtils.privateToPublic('0x' + privatekey).toString('hex');
 const account = '0x' + EthUtils.pubToAddress(publickey).toString('hex');
