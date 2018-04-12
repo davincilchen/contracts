@@ -5,15 +5,13 @@ import "./SidechainLib.sol";
 contract Sidechain {
 	address public owner;
 	uint256 public stageHeight;
-	uint256 public logNumber;
 	mapping (uint256 => SidechainLib.Stage) private stages;
-	mapping (uint256 => SidechainLib.Log) private logs;
+	mapping (bytes32 => SidechainLib.Log) private logs;
 	string public description;
 
 
 	event ProposeDeposit (
 		bytes32 _lightTxHash,
-		string _type,
 		address _client,
 		uint256 _value,
 		uint256 _fee,
@@ -64,13 +62,13 @@ contract Sidechain {
 	) 
 		payable 
 	{
-		ProposeDeposit ( _lightTxHash,"deposit", msg.sender, msg.value, _fee, _lsn, stageHeight+1, _v, _r, _s );
-		logNumber++;
-		logs[logNumber].stageHeight = stageHeight+1;
-		logs[logNumber].lsn = _lsn;
-		logs[logNumber].client = msg.sender;
-		logs[logNumber].value = msg.value;
-		logs[logNumber].flagDeposit = false;
+		ProposeDeposit ( _lightTxHash, msg.sender, msg.value, _fee, _lsn, stageHeight+1, _v, _r, _s );
+
+		logs[_lightTxHash].stageHeight = stageHeight+1;
+		logs[_lightTxHash].lsn = _lsn;
+		logs[_lightTxHash].client = msg.sender;
+		logs[_lightTxHash].value = msg.value;
+		logs[_lightTxHash].flagDeposit = false;
 	}
 
 	function deposit (
@@ -84,7 +82,17 @@ contract Sidechain {
 	) 
 		//onlyOwner
 	{
+		bytes32[] memory bytes32Array = new bytes32[](4);
+		bytes32Array[0] = bytes32(_gsn);
+		bytes32Array[1] = _lightTxHash;
+		bytes32Array[2] = bytes32(_fromBalance);
+		bytes32Array[3] = bytes32(_toBalance);
 
+		bytes32 hashMsg = SidechainLib.hashArray(bytes32Array);
+		address signer = SidechainLib.verify(hashMsg, _v, _r, _s);
+		if (signer == owner) {
+			logs[_lightTxHash].flagDeposit = true;
+		}
 	}
 
 	function getStageHeight() constant returns (uint256) {
