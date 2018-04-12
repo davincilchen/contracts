@@ -2,13 +2,15 @@ let Web3 = require('web3');
 let EthUtils = require('ethereumjs-util');
 let env = require('./env');
 
-let dev = {
-    host: "localhost",
-    port: 8545,
-    network_id: '*'
-}
+let dev = {};
+if (env.length === 0 || env.privateKey == undefined || env.privateKey == '') {
+    dev = {
+        host: 'localhost',
+        port: 8545,
+        network_id: '*'
+    }
 
-if (env.privateKey != "") {
+} else {
     let web3Url = 'http://' + env.web3Host + ':' + env.web3Port;
     let web3 = new Web3(new Web3.providers.HttpProvider(web3Url));
     const privatekey = env.privateKey;
@@ -24,7 +26,6 @@ if (env.privateKey != "") {
         from: account
     }
 }
-
 
 module.exports = {
     networks: {
