@@ -12,5 +12,8 @@
   "devDependencies": {
     "ethereumjs-util": "^5.1.5",
     "web3": "^0.20.6"
+  },
+  "dependencies": {
+    "fs": "0.0.1-security"
   }
 }

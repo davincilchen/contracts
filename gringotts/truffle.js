@@ -1,16 +1,11 @@
-let Web3 = require('web3');
-let EthUtils = require('ethereumjs-util');
-let env = require('./env');
+fs = require('fs');
 
 let dev = {};
-if (env.length === 0 || env.privateKey == undefined || env.privateKey == '') {
-    dev = {
-        host: 'localhost',
-        port: 8545,
-        network_id: '*'
-    }
+if (fs.existsSync('./env.js')) {
+    let Web3 = require('web3');
+    let EthUtils = require('ethereumjs-util');
+    let env = require('./env');
 
-} else {
     let web3Url = 'http://' + env.web3Host + ':' + env.web3Port;
     let web3 = new Web3(new Web3.providers.HttpProvider(web3Url));
     const privatekey = env.privateKey;
@@ -24,6 +19,13 @@ if (env.length === 0 || env.privateKey == undefined || env.privateKey == '') {
         port: env.web3Port,
         network_id: '*',
         from: account
+    }
+
+} else {
+    dev = {
+        host: 'localhost',
+        port: 8545,
+        network_id: '*'
     }
 }
 
