@@ -1,6 +1,8 @@
 pragma solidity ^0.4.15;
 
-library SidechainLib {
+contract SidechainLib {
+    string constant version = "v0.1";
+
 	struct Stage {
 		bytes32 stageHash;
 		bytes32 balanceRootHash;

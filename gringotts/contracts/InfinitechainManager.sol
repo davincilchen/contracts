@@ -4,6 +4,7 @@ import "./Sidechain.sol";
 
 contract InfinitechainManager {
 	address public owner;
+	address public sidechainLibAddress;
 	uint256 public sidechainNumber;
 	mapping (uint256 => address) public sidechainAddress;
 
@@ -19,13 +20,15 @@ contract InfinitechainManager {
     	_;
     }
 
-	function InfinitechainManager() {
+	function InfinitechainManager(address _sidechainLibAddress) {
 		owner = msg.sender;
+		sidechainLibAddress = _sidechainLibAddress;
+		deploySidechain(owner);
 	}
 
-	function deploySidechain() onlyOwner {
+	function deploySidechain(address _sidechainOwner) onlyOwner {
 		sidechainNumber++;
-		address newSidechain = new Sidechain();
+		address newSidechain = new Sidechain(_sidechainOwner, sidechainLibAddress);
 		sidechainAddress[sidechainNumber] = newSidechain;
 		DeploySidechain(sidechainNumber, newSidechain);
 	}
