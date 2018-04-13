@@ -7,7 +7,7 @@ contract Sidechain {
 	address public sidechainLibAddress;
 	uint256 public stageHeight;
 	mapping (uint256 => SidechainLib.Stage) private stages;
-	mapping (bytes32 => SidechainLib.Log) private logs;
+	mapping (bytes32 => SidechainLib.Log) public logs;
 	string public description;
 
 	event ProposeDeposit (
