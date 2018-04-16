@@ -100,9 +100,8 @@ contract Sidechain {
 
 		bytes32 hashMsg = lib.hashArray(bytes32Array);
 		address signer = lib.verify(hashMsg, _v, _r, _s);
-		if (signer == owner) {
-			logs[_lightTxHash].flagDeposit = true;
-		}
+		require (signer == owner);
+		logs[_lightTxHash].flagDeposit = true;
 
 		Deposit (_gsn, _lightTxHash, _fromBalance, _toBalance);
 	}
