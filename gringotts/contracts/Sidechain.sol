@@ -33,7 +33,7 @@ contract Sidechain {
     	setFunctionSig('deposit', 0x7b9d7d74);
     }
 
-	function setFunctionSig(bytes32 _functionName, bytes4 _signature) onlyOwner {
+	function setFunctionSig(bytes32 _functionName, bytes4 _signature) {
 		functionSig[_functionName] = _signature;
 	}
 
