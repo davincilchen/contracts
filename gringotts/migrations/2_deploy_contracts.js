@@ -5,6 +5,6 @@ var Sidechain = artifacts.require("./Sidechain.sol");
 module.exports = function(deployer) {
 
   deployer.deploy(SidechainLib).then(function() {
-  	return deployer.deploy(Sidechain, SidechainLib.address);
+  	return deployer.deploy(InfinitechainManager, SidechainLib.address);
   });
 };

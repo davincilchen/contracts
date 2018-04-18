@@ -23,8 +23,8 @@ contract Sidechain {
     	_;
     }
 
-    function Sidechain(address _sidechainLibAddress) {
-    	owner = msg.sender;
+    function Sidechain(address _sidechainOwner, address _sidechainLibAddress) {
+    	owner = _sidechainOwner;
     	sidechainLibAddress = _sidechainLibAddress;
     	description = "test";
     	stages[stageHeight].data = "genisis stage";
