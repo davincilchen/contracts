@@ -9,7 +9,6 @@ contract SidechainLib {
     string constant version = "v0.1";
 
 	struct Stage {
-		bytes32 stageHash;
 		bytes32 balanceRootHash;
 		bytes32 receiptRootHash;
 		bytes32 data;
@@ -138,9 +137,9 @@ contract SidechainLib {
         _parameter[2] = _data
         */
         stageHeight++;
-        stages[0].balanceRootHash = _parameter[0];
-        stages[0].receiptRootHash = _parameter[1];
-        stages[0].data = _parameter[2];
+        stages[stageHeight].balanceRootHash = _parameter[0];
+        stages[stageHeight].receiptRootHash = _parameter[1];
+        stages[stageHeight].data = _parameter[2];
     }
 
     function proposeDeposit(bytes32[] _parameter) payable {
