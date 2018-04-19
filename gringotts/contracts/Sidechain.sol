@@ -3,7 +3,7 @@ pragma solidity ^0.4.15;
 import "./SidechainLib.sol";
 
 contract Sidechain {
-	mapping (uint256 => SidechainLib.Stage) private stages;
+	mapping (uint256 => SidechainLib.Stage) public stages;
 	mapping (bytes32 => SidechainLib.Log) public logs;
 	uint256 public stageHeight;
 	address public owner;
@@ -11,7 +11,24 @@ contract Sidechain {
 	address public sidechainLibAddress;
 	string public description;
 
-	mapping (bytes32 => bytes4) public functionSig;
+    event ProposeDeposit (
+        bytes32 _lightTxHash,
+        bytes32 _client,
+        bytes32 _value,
+        bytes32 _fee,
+        bytes32 _lsn,
+        bytes32 _stageHeight,
+        bytes32 _v,
+        bytes32 _r,
+        bytes32 _s
+    );
+
+    event Deposit (
+        bytes32 _gsn,
+        bytes32 _lightTxHash,
+        bytes32 _fromBalance,
+        bytes32 _toBalance
+    );
 
 	modifier onlyOwner {
         require(msg.sender == owner);
@@ -28,27 +45,24 @@ contract Sidechain {
     	sidechainLibAddress = _sidechainLibAddress;
     	description = "test";
     	stages[stageHeight].data = "genisis stage";
-    	setFunctionSig('attachStage', 0x1655e8ac);
-    	setFunctionSig('proposeDeposit', 0xdcf12aba);
-    	setFunctionSig('deposit', 0x7b9d7d74);
     }
 
-	function setFunctionSig(bytes32 _functionName, bytes4 _signature) {
-		functionSig[_functionName] = _signature;
-	}
-
-    function delegateToLib(bytes32 _functionName, bytes32[] _parameter) payable {
-        sidechainLibAddress.delegatecall( functionSig[_functionName], uint256(32), uint256(_parameter.length), _parameter);
+    function delegateToLib(bytes4 _signature, bytes32[] _parameter) payable {
+    	/*
+     	'attachStage(bytes32[])':    0x1655e8ac
+    	'proposeDeposit(bytes32[])': 0xdcf12aba
+    	'deposit(bytes32[])':        0x7b9d7d74
+    	*/
+        sidechainLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }
 
 	function getStageHeight() constant returns (uint256) {
 		return stageHeight;
 	}
 	
-	function getStageInfo(uint256 _stageId) stageExist(_stageId) constant returns(bytes32, bytes32, bytes32, bytes32) {
+	function getStageInfo(uint256 _stageId) stageExist(_stageId) constant returns(bytes32, bytes32, bytes32) {
 		return 
 		(
-			stages[_stageId].stageHash,
 			stages[_stageId].balanceRootHash,
 			stages[_stageId].receiptRootHash,
 			stages[_stageId].data
