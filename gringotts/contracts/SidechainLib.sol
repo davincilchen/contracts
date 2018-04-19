@@ -9,6 +9,7 @@ contract SidechainLib {
     string constant version = "v0.1";
 
 	struct Stage {
+        bytes32 stageHash;
 		bytes32 balanceRootHash;
 		bytes32 receiptRootHash;
 		bytes32 data;
