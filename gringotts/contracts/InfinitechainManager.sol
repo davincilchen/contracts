@@ -32,8 +32,4 @@ contract InfinitechainManager {
 		sidechainAddress[sidechainNumber] = newSidechain;
 		DeploySidechain(sidechainNumber, newSidechain);
 	}
-
-	function getStageHeight(uint256 _sidechainId) sidechainExist(_sidechainId) constant returns (uint256) {
-		return Sidechain(sidechainAddress[_sidechainId]).getStageHeight();
-	}
 }

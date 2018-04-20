@@ -19,7 +19,7 @@ contract SidechainLib {
 		bytes32 lsn;
 		bytes32 client;
 		bytes32 value;
-		bool flagDeposit;
+		uint256 flag; // {0: Empty, 1: proposeDeposit, 2:CompleteDeposit, 3: proposeWithdraw, 4: CompleteWithdraw, 5: proposeInstantWithdraw(not be used), 6:CompleteInstantWithdraw}
 	}
 
     event ProposeDeposit (
@@ -102,16 +102,6 @@ contract SidechainLib {
         return string(bytesString);
     }
 
-    function addressToString (address addr) constant returns (string) {
-        bytes memory bytesString = new bytes(40);
-        for (uint i = 0; i < 20; i++) {
-            byte char = byte(bytes20(uint(addr) * 2 ** (8 * i)));
-            bytesString[i*2+0] = uintToAscii(uint(char) / 16);
-            bytesString[i*2+1] = uintToAscii(uint(char) % 16);
-        }
-        return string(bytesString);
-    }
-
     function uintToAscii(uint number) constant returns(byte) {
         if (number < 10) {
             return byte(48 + number);
@@ -152,10 +142,10 @@ contract SidechainLib {
         _parameter[5] = _s      
         */
         logs[_parameter[0]].stageHeight = bytes32(stageHeight+1);
-        logs[_parameter[0]].lsn = bytes32(_parameter[2]);
+        logs[_parameter[0]].lsn = _parameter[2];
         logs[_parameter[0]].client = bytes32(msg.sender);
         logs[_parameter[0]].value = bytes32(msg.value);
-        logs[_parameter[0]].flagDeposit = false;
+        logs[_parameter[0]].flag = 1; // proposeDeposit
 
         ProposeDeposit ( _parameter[0], 
                          logs[_parameter[0]].client, 
@@ -187,7 +177,7 @@ contract SidechainLib {
         bytes32 hashMsg = hashArray(bytes32Array);
         address signer = verify(hashMsg, uint8(_parameter[4]), _parameter[5], _parameter[6]);
         require (signer == owner);
-        logs[_parameter[1]].flagDeposit = true;
+        logs[_parameter[1]].flag = 2; // CompleteDeposit
 
         Deposit (_parameter[0], _parameter[1], _parameter[2], _parameter[3]);
     }

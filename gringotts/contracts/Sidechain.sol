@@ -30,16 +30,6 @@ contract Sidechain {
         bytes32 _toBalance
     );
 
-	modifier onlyOwner {
-        require(msg.sender == owner);
-        _;
-    }
-
-    modifier stageExist (uint256 _stageId) {
-    	require(_stageId <= stageHeight);
-    	_;
-    }
-
     function Sidechain(address _sidechainOwner, address _sidechainLibAddress) {
     	owner = _sidechainOwner;
     	sidechainLibAddress = _sidechainLibAddress;
@@ -55,17 +45,4 @@ contract Sidechain {
     	*/
         sidechainLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }
-
-	function getStageHeight() constant returns (uint256) {
-		return stageHeight;
-	}
-	
-	function getStageInfo(uint256 _stageId) stageExist(_stageId) constant returns(bytes32, bytes32, bytes32) {
-		return 
-		(
-			stages[_stageId].balanceRootHash,
-			stages[_stageId].receiptRootHash,
-			stages[_stageId].data
-		);
-	}
 }
