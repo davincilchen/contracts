@@ -24,7 +24,8 @@ contract Sidechain {
         bytes32 _s
     );
 
-    event Deposit (
+    event VerifyReceipt (
+        bytes32 _type,
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,
@@ -44,6 +45,7 @@ contract Sidechain {
     	'proposeDeposit(bytes32[])':  0xdcf12aba
     	'deposit(bytes32[])':         0x7b9d7d74
         'proposeWithdraw(bytes32[])': 0x6372c45e
+        'withdraw(bytes32[])':        0xfe2b3924
     	*/
         sidechainLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }

@@ -35,7 +35,8 @@ contract SidechainLib {
         bytes32 _s
     );
 
-    event Deposit (
+    event VerifyReceipt (
+        bytes32 _type,
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,
@@ -182,7 +183,7 @@ contract SidechainLib {
         require (signer == owner);
         logs[_parameter[1]].flag = 2; // CompleteDeposit
 
-        Deposit (_parameter[0], _parameter[1], _parameter[2], _parameter[3]);
+        VerifyReceipt ("deposit", _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
     }
 
     function proposeWithdraw(bytes32[] _parameter) {
@@ -213,4 +214,18 @@ contract SidechainLib {
                   _parameter[6] );                      // _s
     }
 
+    function withdraw (bytes32[] _parameter) onlyOwner {
+        /*
+        _parameter[0] = _gsn,
+        _parameter[1] = _lightTxHash,
+        _parameter[2] = _fromBalance,
+        _parameter[3] = _toBalance,
+        _parameter[4] = _v,
+        _parameter[5] = _r,
+        _parameter[6] = _s
+        */
+        require(logs[_parameter[1]].flag == 3);
+
+        VerifyReceipt ("withdraw", _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
+    }
 }
