@@ -22,7 +22,8 @@ contract SidechainLib {
 		uint256 flag; // {0: Empty, 1: proposeDeposit, 2:CompleteDeposit, 3: proposeWithdraw, 4: CompleteWithdraw, 5: proposeInstantWithdraw(not be used), 6:CompleteInstantWithdraw}
 	}
 
-    event ProposeDeposit (
+    event Propose (
+        bytes32  _type,
         bytes32 _lightTxHash,
         bytes32 _client,
         bytes32 _value,
@@ -147,15 +148,16 @@ contract SidechainLib {
         logs[_parameter[0]].value = bytes32(msg.value);
         logs[_parameter[0]].flag = 1; // proposeDeposit
 
-        ProposeDeposit ( _parameter[0], 
-                         logs[_parameter[0]].client, 
-                         logs[_parameter[0]].value, 
-                         _parameter[1], 
-                         _parameter[2], 
-                         logs[_parameter[0]].stageHeight, 
-                         _parameter[3], 
-                         _parameter[4], 
-                         _parameter[5] );
+        Propose ( "deposit",                            // _type
+                  _parameter[0],                        // _lightTxHash
+                  logs[_parameter[0]].client,           // _client
+                  logs[_parameter[0]].value,            // _value
+                  _parameter[1],                        // _fee
+                  _parameter[2],                        // _lsn
+                  logs[_parameter[0]].stageHeight,      // _stageHeight
+                  _parameter[3],                        // _v
+                  _parameter[4],                        // _r
+                  _parameter[5] );                      // _s
     }
 
     function deposit (bytes32[] _parameter) onlyOwner {
@@ -168,6 +170,7 @@ contract SidechainLib {
         _parameter[5] = _r,
         _parameter[6] = _s
         */
+        require(logs[_parameter[1]].flag == 1);
         bytes32[] memory bytes32Array = new bytes32[](4);
         bytes32Array[0] = _parameter[0];
         bytes32Array[1] = _parameter[1];
@@ -180,6 +183,34 @@ contract SidechainLib {
         logs[_parameter[1]].flag = 2; // CompleteDeposit
 
         Deposit (_parameter[0], _parameter[1], _parameter[2], _parameter[3]);
+    }
+
+    function proposeWithdraw(bytes32[] _parameter) {
+         /*
+        _parameter[0] = _lightTxHash
+        _parameter[1] = _fee
+        _parameter[2] = _lsn
+        _parameter[3] = _value
+        _parameter[4] = _v
+        _parameter[5] = _r
+        _parameter[6] = _s
+        */
+        logs[_parameter[0]].stageHeight = bytes32(stageHeight+1);
+        logs[_parameter[0]].lsn = _parameter[2];
+        logs[_parameter[0]].client = bytes32(msg.sender);
+        logs[_parameter[0]].value = _parameter[3];
+        logs[_parameter[0]].flag = 3; // proposeWithdraw
+
+        Propose ( "withdraw",                           // _type
+                  _parameter[0],                        // _lightTxHash
+                  logs[_parameter[0]].client,           // _client
+                  logs[_parameter[0]].value,            // _value
+                  _parameter[1],                        // _fee
+                  _parameter[2],                        // _lsn
+                  logs[_parameter[0]].stageHeight,      // _stageHeight
+                  _parameter[4],                        // _v
+                  _parameter[5],                        // _r
+                  _parameter[6] );                      // _s
     }
 
 }

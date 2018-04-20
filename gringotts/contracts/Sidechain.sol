@@ -11,7 +11,8 @@ contract Sidechain {
 	address public sidechainLibAddress;
 	string public description;
 
-    event ProposeDeposit (
+    event Propose (
+        bytes32  _type,
         bytes32 _lightTxHash,
         bytes32 _client,
         bytes32 _value,
@@ -39,9 +40,10 @@ contract Sidechain {
 
     function delegateToLib(bytes4 _signature, bytes32[] _parameter) payable {
     	/*
-     	'attachStage(bytes32[])':    0x1655e8ac
-    	'proposeDeposit(bytes32[])': 0xdcf12aba
-    	'deposit(bytes32[])':        0x7b9d7d74
+     	'attachStage(bytes32[])':     0x1655e8ac
+    	'proposeDeposit(bytes32[])':  0xdcf12aba
+    	'deposit(bytes32[])':         0x7b9d7d74
+        'proposeWithdraw(bytes32[])': 0x6372c45e
     	*/
         sidechainLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }
