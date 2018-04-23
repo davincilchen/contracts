@@ -214,7 +214,7 @@ contract SidechainLib {
                   _parameter[6] );                      // _s
     }
 
-    function withdraw (bytes32[] _parameter) onlyOwner {
+    function confirmWithdrawal(bytes32[] _parameter) onlyOwner {
         /*
         _parameter[0] = _gsn,
         _parameter[1] = _lightTxHash,
@@ -227,5 +227,16 @@ contract SidechainLib {
         require(logs[_parameter[1]].flag == 3);
 
         VerifyReceipt ("withdraw", _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
+    }
+
+    function withdraw (bytes32[] _parameter) {
+        /*
+        _parameter[0] = _lightTxHash
+        */
+        require(logs[_parameter[0]].flag == 3);
+        address client = address(logs[_parameter[0]].client);
+        uint256 value = uint256(logs[_parameter[0]].value);
+        client.transfer(value);
+        logs[_parameter[0]].flag = 4;
     }
 }

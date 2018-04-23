@@ -33,20 +33,21 @@ contract Sidechain {
     );
 
     function Sidechain(address _sidechainOwner, address _sidechainLibAddress) {
-    	owner = _sidechainOwner;
-    	sidechainLibAddress = _sidechainLibAddress;
-    	description = "test";
-    	stages[stageHeight].data = "genisis stage";
+        owner = _sidechainOwner;
+        sidechainLibAddress = _sidechainLibAddress;
+        description = "test";
+        stages[stageHeight].data = "genisis stage";
     }
 
     function delegateToLib(bytes4 _signature, bytes32[] _parameter) payable {
-    	/*
-     	'attachStage(bytes32[])':     0x1655e8ac
-    	'proposeDeposit(bytes32[])':  0xdcf12aba
-    	'deposit(bytes32[])':         0x7b9d7d74
-        'proposeWithdraw(bytes32[])': 0x6372c45e
-        'withdraw(bytes32[])':        0xfe2b3924
-    	*/
+        /*
+        'attachStage(bytes32[])':        0x1655e8ac
+        'proposeDeposit(bytes32[])':     0xdcf12aba
+        'deposit(bytes32[])':            0x7b9d7d74
+        'proposeWithdrawal(bytes32[])':  0x68ff1929
+        'confirmWithdrawal(bytes32[])':  0xe0671980
+        'withdraw(bytes32[])':           0xfe2b3924
+        */
         sidechainLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }
 }
