@@ -19,11 +19,11 @@ contract SidechainLib {
 		bytes32 lsn;
 		bytes32 client;
 		bytes32 value;
-		uint256 flag; // {0: Empty, 1: proposeDeposit, 2:CompleteDeposit, 3: proposeWithdraw, 4: CompleteWithdraw, 5: proposeInstantWithdraw(not be used), 6:CompleteInstantWithdraw}
+		uint256 flag; // { 0: Empty, 1: proposeDeposit, 2:CompleteDeposit, 3: proposeWithdraw, 4: CompleteWithdraw, 5: CompleteInstantWithdraw }
 	}
 
     event Propose (
-        uint256 indexed _type, // {0: deposit, 1: withdrawal, 2: instantWithdrawal, 3: remittance}
+        uint256 indexed _type, // { 0: deposit, 1: withdrawal, 3: remittance }
         bytes32 _lightTxHash,
         bytes32 _client,
         bytes32 _value,
@@ -36,7 +36,7 @@ contract SidechainLib {
     );
 
     event VerifyReceipt (
-        uint256 indexed _type, // {0: deposit, 1: withdrawal, 2: instantWithdrawal, 3: remittance}
+        uint256 indexed _type, // { 0: deposit, 1: withdrawal, 2: instantWithdrawal, 3: remittance }
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,
@@ -239,4 +239,45 @@ contract SidechainLib {
         client.transfer(value);
         logs[_parameter[0]].flag = 4;
     }
+
+    function instantWithdraw (bytes32[] _parameter) {
+	    /*
+        _parameter[0] = _value,
+        _parameter[1] = _fee,
+        _parameter[2] = _lsn,
+        _parameter[3] = stageHeight,
+        _parameter[4] = _gsn,
+        _parameter[5] = _lightTxHash,
+        _parameter[6] = _fromBlalnce,
+        _parameter[7] = _toBalance,
+        _parameter[8] = _v,
+        _parameter[9] = _r,
+        _parameter[10] = _s
+        */
+		bytes32[] memory bytes32Array1 = new bytes32[](6);
+		bytes32Array1[0] = 0x0;
+		bytes32Array1[1] = bytes32(msg.sender);
+		bytes32Array1[2] = bytes32(_parameter[0]);
+		bytes32Array1[3] = bytes32(_parameter[1]);
+		bytes32Array1[4] = bytes32(_parameter[2]);
+		bytes32Array1[5] = bytes32(_parameter[3]);
+		bytes32 hashMsg1 = hashArray(bytes32Array1);
+        require (hashMsg1 == _parameter[5]);// verify lightTxHash equal or not.
+		bytes32[] memory bytes32Array2 = new bytes32[](4);
+		bytes32Array2[0] = bytes32(_parameter[4]);
+		bytes32Array2[1] = bytes32(_parameter[5]);
+		bytes32Array2[2] = bytes32(_parameter[6]);
+		bytes32Array2[3] = bytes32(_parameter[7]);
+		bytes32 hashMsg2 = hashArray(bytes32Array2);
+		address signer = verify(hashMsg2, uint8(_parameter[8]), _parameter[9], _parameter[10]);
+		require (signer == owner);
+		msg.sender.transfer(uint256(_parameter[0]));// transfer value
+
+		logs[_parameter[5]].stageHeight = _parameter[3];
+		logs[_parameter[5]].lsn = _parameter[2];
+		logs[_parameter[5]].client = bytes32(msg.sender);
+		logs[_parameter[5]].value = _parameter[0];
+		logs[_parameter[5]].flag = 5;
+        VerifyReceipt (2, _parameter[4], _parameter[5], _parameter[6], _parameter[7]);
+	}
 }

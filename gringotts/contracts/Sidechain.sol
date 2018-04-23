@@ -47,6 +47,7 @@ contract Sidechain {
         'proposeWithdrawal(bytes32[])':  0x68ff1929
         'confirmWithdrawal(bytes32[])':  0xe0671980
         'withdraw(bytes32[])':           0xfe2b3924
+		'instantWithdraw(bytes32[])':    0xbe1946da
         */
         sidechainLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }
