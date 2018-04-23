@@ -23,7 +23,7 @@ contract SidechainLib {
 	}
 
     event Propose (
-        bytes32  _type,
+        uint256 _type, // {0: deposit, 1: withdrawal, 2: instantWithdrawal, 3: remittance}
         bytes32 _lightTxHash,
         bytes32 _client,
         bytes32 _value,
@@ -36,7 +36,7 @@ contract SidechainLib {
     );
 
     event VerifyReceipt (
-        bytes32 _type,
+        uint256 _type, // {0: deposit, 1: withdrawal, 2: instantWithdrawal, 3: remittance}
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,
@@ -149,7 +149,7 @@ contract SidechainLib {
         logs[_parameter[0]].value = bytes32(msg.value);
         logs[_parameter[0]].flag = 1; // proposeDeposit
 
-        Propose ( "deposit",                            // _type
+        Propose ( 0,                                    // _type
                   _parameter[0],                        // _lightTxHash
                   logs[_parameter[0]].client,           // _client
                   logs[_parameter[0]].value,            // _value
@@ -183,7 +183,7 @@ contract SidechainLib {
         require (signer == owner);
         logs[_parameter[1]].flag = 2; // CompleteDeposit
 
-        VerifyReceipt ("deposit", _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
+        VerifyReceipt (0, _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
     }
 
     function proposeWithdraw(bytes32[] _parameter) {
@@ -202,7 +202,7 @@ contract SidechainLib {
         logs[_parameter[0]].value = _parameter[3];
         logs[_parameter[0]].flag = 3; // proposeWithdraw
 
-        Propose ( "withdraw",                           // _type
+        Propose ( 1,                                    // _type
                   _parameter[0],                        // _lightTxHash
                   logs[_parameter[0]].client,           // _client
                   logs[_parameter[0]].value,            // _value
@@ -226,7 +226,7 @@ contract SidechainLib {
         */
         require(logs[_parameter[1]].flag == 3);
 
-        VerifyReceipt ("withdraw", _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
+        VerifyReceipt (1, _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
     }
 
     function withdraw (bytes32[] _parameter) {
