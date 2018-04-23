@@ -23,7 +23,7 @@ contract SidechainLib {
 	}
 
     event Propose (
-        uint256 indexed _type, // { 0: deposit, 1: withdrawal, 3: remittance }
+        uint256 indexed _type, // { 0: deposit, 1: withdrawal }
         bytes32 _lightTxHash,
         bytes32 _client,
         bytes32 _value,
@@ -262,7 +262,7 @@ contract SidechainLib {
 		bytes32Array1[4] = bytes32(_parameter[2]);
 		bytes32Array1[5] = bytes32(_parameter[3]);
 		bytes32 hashMsg1 = hashArray(bytes32Array1);
-        require (hashMsg1 == _parameter[5]);// verify lightTxHash equal or not.
+		require (hashMsg1 == _parameter[5]);// verify lightTxHash equal or not.
 		bytes32[] memory bytes32Array2 = new bytes32[](4);
 		bytes32Array2[0] = bytes32(_parameter[4]);
 		bytes32Array2[1] = bytes32(_parameter[5]);
@@ -278,6 +278,6 @@ contract SidechainLib {
 		logs[_parameter[5]].client = bytes32(msg.sender);
 		logs[_parameter[5]].value = _parameter[0];
 		logs[_parameter[5]].flag = 5;
-        VerifyReceipt (2, _parameter[4], _parameter[5], _parameter[6], _parameter[7]);
+		VerifyReceipt (2, _parameter[4], _parameter[5], _parameter[6], _parameter[]);
 	}
 }
