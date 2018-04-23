@@ -278,6 +278,6 @@ contract SidechainLib {
 		logs[_parameter[5]].client = bytes32(msg.sender);
 		logs[_parameter[5]].value = _parameter[0];
 		logs[_parameter[5]].flag = 5;
-		VerifyReceipt (2, _parameter[4], _parameter[5], _parameter[6], _parameter[]);
+		VerifyReceipt (2, _parameter[4], _parameter[5], _parameter[6], _parameter[7]);
 	}
 }
