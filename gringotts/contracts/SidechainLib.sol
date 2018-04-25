@@ -19,7 +19,7 @@ contract SidechainLib {
 		bytes32 lsn;
 		bytes32 client;
 		bytes32 value;
-		uint256 flag; // { 0: Empty, 1: proposeDeposit, 2:CompleteDeposit, 3: proposeWithdraw, 4: CompleteWithdraw, 5: CompleteInstantWithdraw }
+		uint256 flag; // { 0: Empty, 1: proposeDeposit, 2: CompleteDeposit, 3: proposeWithdraw, 4: CompleteWithdraw, 5: CompleteInstantWithdraw }
 	}
 
     event Propose (
@@ -36,7 +36,7 @@ contract SidechainLib {
     );
 
     event VerifyReceipt (
-        uint256 indexed _type, // { 0: deposit, 1: withdrawal, 2: instantWithdrawal, 3: remittance }
+        uint256 indexed _type, // { 0: deposit, 1: confirmWithdraw, 2: instantWithdrawal}
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,
@@ -122,7 +122,7 @@ contract SidechainLib {
         return signer;
     }
 
-    function attachStage(bytes32[] _parameter) { 
+    function attachStage (bytes32[] _parameter) {
         /*
         _parameter[0] = _balanceRootHash
         _parameter[1] = _receiptRootHash
@@ -186,7 +186,7 @@ contract SidechainLib {
         VerifyReceipt (0, _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
     }
 
-    function proposeWithdraw(bytes32[] _parameter) {
+    function proposeWithdrawal(bytes32[] _parameter) {
          /*
         _parameter[0] = _lightTxHash
         _parameter[1] = _fee
@@ -214,7 +214,7 @@ contract SidechainLib {
                   _parameter[6] );                      // _s
     }
 
-    function confirmWithdrawal(bytes32[] _parameter) onlyOwner {
+    function confirmWithdraw(bytes32[] _parameter) onlyOwner {
         /*
         _parameter[0] = _gsn,
         _parameter[1] = _lightTxHash,
@@ -225,11 +225,11 @@ contract SidechainLib {
         _parameter[6] = _s
         */
         require (logs[_parameter[1]].flag == 3);
-        require (uint256(logs[_parameter[1]].stageHeight) == stageHeight);
+        require (uint256(logs[_parameter[1]].stageHeight) < stageHeight);
         VerifyReceipt (1, _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
     }
 
-    function withdraw (bytes32[] _parameter) {
+    function withdraw(bytes32[] _parameter) {
         /*
         _parameter[0] = _lightTxHash
         */
@@ -239,9 +239,10 @@ contract SidechainLib {
         uint256 value = uint256(logs[_parameter[0]].value);
         client.transfer(value);
         logs[_parameter[0]].flag = 4;
+        VerifyReceipt (2, _parameter[4], _parameter[5], _parameter[6], _parameter[7]);
     }
 
-    function instantWithdraw (bytes32[] _parameter) {
+    function instantWithdraw(bytes32[] _parameter) {
 	    /*
         _parameter[0] = _value,
         _parameter[1] = _fee,

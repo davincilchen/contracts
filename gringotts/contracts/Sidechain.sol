@@ -12,7 +12,7 @@ contract Sidechain {
 	string public description;
 
     event Propose (
-        uint256  indexed _type, // {0: deposit, 1: withdrawal, 2: instantWithdrawal, 3: remittance}
+        uint256  indexed _type, // {0: deposit, 1: withdrawal, 2: instantWithdrawal}
         bytes32 _lightTxHash,
         bytes32 _client,
         bytes32 _value,
@@ -25,7 +25,7 @@ contract Sidechain {
     );
 
     event VerifyReceipt (
-        uint256 indexed _type, // {0: deposit, 1: withdrawal, 2: instantWithdrawal, 3: remittance}
+        uint256 indexed _type, // {0: deposit, 1: withdrawal, 2: instantWithdrawal}
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,
@@ -45,7 +45,7 @@ contract Sidechain {
         'proposeDeposit(bytes32[])':     0xdcf12aba
         'deposit(bytes32[])':            0x7b9d7d74
         'proposeWithdrawal(bytes32[])':  0x68ff1929
-        'confirmWithdrawal(bytes32[])':  0xe0671980
+        'confirmWithdraw(bytes32[])':    0x88dce99a
         'withdraw(bytes32[])':           0xfe2b3924
         'instantWithdraw(bytes32[])':    0xbe1946da
         */
