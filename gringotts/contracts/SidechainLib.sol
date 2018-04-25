@@ -239,7 +239,6 @@ contract SidechainLib {
         uint256 value = uint256(logs[_parameter[0]].value);
         client.transfer(value);
         logs[_parameter[0]].flag = 4;
-        VerifyReceipt (2, _parameter[4], _parameter[5], _parameter[6], _parameter[7]);
     }
 
     function instantWithdraw (bytes32[] _parameter) {
