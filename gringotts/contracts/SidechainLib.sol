@@ -48,7 +48,7 @@ contract SidechainLib {
         _;
     }
 
-    function inBytes32Array(bytes32 data, bytes32[] dataArray) constant returns (bool){
+    function inBytes32Array (bytes32 data, bytes32[] dataArray) constant returns (bool){
         for (uint i = 0; i < dataArray.length; i++) {
             if (data == dataArray[i]) {
                 return true;
@@ -57,7 +57,7 @@ contract SidechainLib {
         return false;
     }
 
-    function hashArray(bytes32[] dataArray) constant returns (bytes32) {
+    function hashArray (bytes32[] dataArray) constant returns (bytes32) {
         require(dataArray.length > 0);
         string memory str = bytes32ToString(dataArray[0]);
         for (uint i = 1; i < dataArray.length; i++) {
@@ -66,7 +66,7 @@ contract SidechainLib {
         return sha3(str);
     }
 
-    function calculateSliceRootHash(uint idx, bytes32[] slice) constant returns (bytes32) {
+    function calculateSliceRootHash (uint idx, bytes32[] slice) constant returns (bytes32) {
         require(slice.length > 0);
         bytes32 rootHash = slice[0];
         string memory str;
@@ -83,7 +83,7 @@ contract SidechainLib {
         return rootHash;
     }
 
-    function strConcat(string _a, string _b) constant returns (string) {
+    function strConcat (string _a, string _b) constant returns (string) {
         bytes memory bytes_a = bytes(_a);
         bytes memory bytes_b = bytes(_b);
         string memory length_ab = new string(bytes_a.length + bytes_b.length);
@@ -104,7 +104,7 @@ contract SidechainLib {
         return string(bytesString);
     }
 
-    function uintToAscii(uint number) constant returns(byte) {
+    function uintToAscii (uint number) constant returns(byte) {
         if (number < 10) {
             return byte(48 + number);
         } else if (number < 16) {
@@ -115,7 +115,7 @@ contract SidechainLib {
         }
     }
 
-    function verify(bytes32 _message, uint8 _v, bytes32 _r, bytes32 _s) constant returns (address) {
+    function verify (bytes32 _message, uint8 _v, bytes32 _r, bytes32 _s) constant returns (address) {
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         bytes32 prefixedHash = sha3(prefix, _message);
         address signer = ecrecover(prefixedHash, _v, _r, _s);
@@ -134,7 +134,7 @@ contract SidechainLib {
         stages[stageHeight].data = _parameter[2];
     }
 
-    function proposeDeposit(bytes32[] _parameter) payable {
+    function proposeDeposit (bytes32[] _parameter) payable {
         /*
         _parameter[0] = _lightTxHash
         _parameter[1] = _fee
@@ -186,7 +186,7 @@ contract SidechainLib {
         VerifyReceipt (0, _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
     }
 
-    function proposeWithdrawal(bytes32[] _parameter) {
+    function proposeWithdrawal (bytes32[] _parameter) {
          /*
         _parameter[0] = _lightTxHash
         _parameter[1] = _fee
@@ -214,7 +214,7 @@ contract SidechainLib {
                   _parameter[6] );                      // _s
     }
 
-    function confirmWithdraw(bytes32[] _parameter) onlyOwner {
+    function confirmWithdrawal (bytes32[] _parameter) onlyOwner {
         /*
         _parameter[0] = _gsn,
         _parameter[1] = _lightTxHash,
@@ -229,7 +229,7 @@ contract SidechainLib {
         VerifyReceipt (1, _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
     }
 
-    function withdraw(bytes32[] _parameter) {
+    function withdraw (bytes32[] _parameter) {
         /*
         _parameter[0] = _lightTxHash
         */
@@ -242,7 +242,7 @@ contract SidechainLib {
         VerifyReceipt (2, _parameter[4], _parameter[5], _parameter[6], _parameter[7]);
     }
 
-    function instantWithdraw(bytes32[] _parameter) {
+    function instantWithdraw (bytes32[] _parameter) {
 	    /*
         _parameter[0] = _value,
         _parameter[1] = _fee,

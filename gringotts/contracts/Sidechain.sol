@@ -32,20 +32,20 @@ contract Sidechain {
         bytes32 _toBalance
     );
 
-    function Sidechain(address _sidechainOwner, address _sidechainLibAddress) {
+    function Sidechain (address _sidechainOwner, address _sidechainLibAddress) {
         owner = _sidechainOwner;
         sidechainLibAddress = _sidechainLibAddress;
         description = "test";
         stages[stageHeight].data = "genisis stage";
     }
 
-    function delegateToLib(bytes4 _signature, bytes32[] _parameter) payable {
+    function delegateToLib (bytes4 _signature, bytes32[] _parameter) payable {
         /*
         'attachStage(bytes32[])':        0x1655e8ac
         'proposeDeposit(bytes32[])':     0xdcf12aba
         'deposit(bytes32[])':            0x7b9d7d74
         'proposeWithdrawal(bytes32[])':  0x68ff1929
-        'confirmWithdraw(bytes32[])':    0x88dce99a
+        'confirmWithdrawal(bytes32[])':  0xe0671980
         'withdraw(bytes32[])':           0xfe2b3924
         'instantWithdraw(bytes32[])':    0xbe1946da
         */
