@@ -40,7 +40,9 @@ contract SidechainLib {
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,
-        bytes32 _toBalance
+        bytes32 _toBalance,
+        bytes32[3] _sig_receipt,
+        bytes32[3] _sig_lightTx
     );
 
     modifier onlyOwner {
@@ -167,9 +169,12 @@ contract SidechainLib {
         _parameter[1] = _lightTxHash,
         _parameter[2] = _fromBalance,
         _parameter[3] = _toBalance,
-        _parameter[4] = _v,
-        _parameter[5] = _r,
-        _parameter[6] = _s
+        _parameter[4] = _v_receipt,
+        _parameter[5] = _r_receipt,
+        _parameter[6] = _s_receipt,
+        _parameter[7] = _v_lightTx,
+        _parameter[8] = _r_lightTx,
+        _parameter[9] = _s_lightTx
         */
         require (logs[_parameter[1]].flag == 1);
         bytes32[] memory bytes32Array = new bytes32[](4);
@@ -182,8 +187,7 @@ contract SidechainLib {
         address signer = verify(hashMsg, uint8(_parameter[4]), _parameter[5], _parameter[6]);
         require (signer == owner);
         logs[_parameter[1]].flag = 2; // CompleteDeposit
-
-        VerifyReceipt (0, _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
+        VerifyReceipt (0, _parameter[0], _parameter[1], _parameter[2], _parameter[3], [_parameter[4], _parameter[5], _parameter[6]], [_parameter[7], _parameter[8], _parameter[9]]);
     }
 
     function proposeWithdrawal (bytes32[] _parameter) {
@@ -220,13 +224,16 @@ contract SidechainLib {
         _parameter[1] = _lightTxHash,
         _parameter[2] = _fromBalance,
         _parameter[3] = _toBalance,
-        _parameter[4] = _v,
-        _parameter[5] = _r,
-        _parameter[6] = _s
+        _parameter[4] = _v_receipt,
+        _parameter[5] = _r_receipt,
+        _parameter[6] = _s_receipt,
+        _parameter[7] = _v_lightTx,
+        _parameter[8] = _r_lightTx,
+        _parameter[9] = _s_lightTx
         */
         require (logs[_parameter[1]].flag == 3);
         require (uint256(logs[_parameter[1]].stageHeight) < stageHeight);
-        VerifyReceipt (1, _parameter[0], _parameter[1], _parameter[2], _parameter[3]);
+        VerifyReceipt (1, _parameter[0], _parameter[1], _parameter[2], _parameter[3], [_parameter[4], _parameter[5], _parameter[6]], [_parameter[7], _parameter[8], _parameter[9]]);
     }
 
     function withdraw (bytes32[] _parameter) {
@@ -251,9 +258,12 @@ contract SidechainLib {
         _parameter[5] = _lightTxHash,
         _parameter[6] = _fromBlalnce,
         _parameter[7] = _toBalance,
-        _parameter[8] = _v,
-        _parameter[9] = _r,
-        _parameter[10] = _s
+        _parameter[8] = _v_receipt,
+        _parameter[9] = _r_receipt,
+        _parameter[10] = _s_receipt,
+        _parameter[11] = _v_lightTx,
+        _parameter[12] = _r_lightTx,
+        _parameter[13] = _s_lightTx
         */
 		bytes32[] memory bytes32Array1 = new bytes32[](6);
 		bytes32Array1[0] = 0x0;
@@ -279,6 +289,6 @@ contract SidechainLib {
 		logs[_parameter[5]].client = bytes32(msg.sender);
 		logs[_parameter[5]].value = _parameter[0];
 		logs[_parameter[5]].flag = 5;
-		VerifyReceipt (2, _parameter[4], _parameter[5], _parameter[6], _parameter[7]);
+		VerifyReceipt (2, _parameter[4], _parameter[5], _parameter[6], _parameter[7], [_parameter[8], _parameter[9], _parameter[10]], [_parameter[11], _parameter[12], _parameter[13]]);
 	}
 }
