@@ -45,6 +45,12 @@ contract SidechainLib {
         bytes32[3] _sig_lightTx
     );
 
+    event AttachStage (
+        bytes32 _balanceRootHash,
+        bytes32 _receiptRootHash,
+        bytes32 _stageHeight
+    );
+
     modifier onlyOwner {
         require(msg.sender == owner);
         _;
@@ -134,6 +140,7 @@ contract SidechainLib {
         stages[stageHeight].balanceRootHash = _parameter[0];
         stages[stageHeight].receiptRootHash = _parameter[1];
         stages[stageHeight].data = _parameter[2];
+        AttachStage (_parameter[0], _parameter[1], bytes32(stageHeight));
     }
 
     function proposeDeposit (bytes32[] _parameter) payable {

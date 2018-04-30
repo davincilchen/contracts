@@ -34,6 +34,12 @@ contract Sidechain {
         bytes32[3] _sig_lightTx
     );
 
+    event AttachStage (
+        bytes32 _balanceRootHash,
+        bytes32 _receiptRootHash,
+        bytes32 _stageHeight
+    );
+
     function Sidechain (address _sidechainOwner, address _sidechainLibAddress) {
         owner = _sidechainOwner;
         sidechainLibAddress = _sidechainLibAddress;
