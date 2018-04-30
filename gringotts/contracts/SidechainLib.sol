@@ -232,7 +232,7 @@ contract SidechainLib {
         _parameter[9] = _s_lightTx
         */
         require (logs[_parameter[1]].flag == 3);
-        require (uint256(logs[_parameter[1]].stageHeight) < stageHeight);
+        // require (uint256(logs[_parameter[1]].stageHeight) < stageHeight);
         VerifyReceipt (1, _parameter[0], _parameter[1], _parameter[2], _parameter[3], [_parameter[4], _parameter[5], _parameter[6]], [_parameter[7], _parameter[8], _parameter[9]]);
     }
 
@@ -241,7 +241,7 @@ contract SidechainLib {
         _parameter[0] = _lightTxHash
         */
         require(logs[_parameter[0]].flag == 3);
-        require (uint256(logs[_parameter[0]].stageHeight) < stageHeight);
+        // require (uint256(logs[_parameter[0]].stageHeight) < stageHeight);
         address client = address(logs[_parameter[0]].client);
         uint256 value = uint256(logs[_parameter[0]].value);
         client.transfer(value);
@@ -266,8 +266,8 @@ contract SidechainLib {
         _parameter[13] = _s_lightTx
         */
 		bytes32[] memory bytes32Array1 = new bytes32[](6);
-		bytes32Array1[0] = 0x0;
-		bytes32Array1[1] = bytes32(msg.sender);
+		bytes32Array1[0] = bytes32(msg.sender);
+		bytes32Array1[1] = 0x0;
 		bytes32Array1[2] = bytes32(_parameter[0]);
 		bytes32Array1[3] = bytes32(_parameter[1]);
 		bytes32Array1[4] = bytes32(_parameter[2]);
