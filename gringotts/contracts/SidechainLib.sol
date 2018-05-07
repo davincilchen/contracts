@@ -6,7 +6,7 @@ contract SidechainLib {
     uint256 public stageHeight;
     address public owner;
 
-    string constant version = "v0.1";
+    string constant version = "v1.0.0";
 
 	struct Stage {
 		bytes32 balanceRootHash;
