@@ -35,9 +35,9 @@ contract Sidechain {
     );
 
     event AttachStage (
-        bytes32 _balanceRootHash,
+        bytes32 _stageHeight,
         bytes32 _receiptRootHash,
-        bytes32 _stageHeight
+        bytes32 _balanceRootHash
     );
 
     function Sidechain (address _sidechainOwner, address _sidechainLibAddress) {
