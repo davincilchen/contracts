@@ -173,7 +173,7 @@ contract SidechainLib {
 
     function deposit (bytes32[] _parameter) onlyOwner {
         /*
-        _parameter[0] = stageHeight,
+        _parameter[0] = _stageHeight,
         _parameter[1] = _gsn,
         _parameter[2] = _lightTxHash,
         _parameter[3] = _fromBalance,
@@ -264,7 +264,7 @@ contract SidechainLib {
         _parameter[0] = _value,
         _parameter[1] = _fee,
         _parameter[2] = _lsn,
-        _parameter[3] = stageHeight,
+        _parameter[3] = _stageHeight,
         _parameter[4] = _gsn,
         _parameter[5] = _lightTxHash,
         _parameter[6] = _fromBlalnce,
@@ -285,7 +285,7 @@ contract SidechainLib {
 		bytes32 hashMsg1 = hashArray(bytes32Array1);
 		require (hashMsg1 == _parameter[5]);// verify lightTxHash equal or not.
 		bytes32[] memory bytes32Array2 = new bytes32[](5);
-        bytes32Array2[0] = bytes32(_parameter[3]);
+		bytes32Array2[0] = bytes32(_parameter[3]);
 		bytes32Array2[1] = bytes32(_parameter[4]);
 		bytes32Array2[2] = bytes32(_parameter[5]);
 		bytes32Array2[3] = bytes32(_parameter[6]);
