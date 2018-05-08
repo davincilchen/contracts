@@ -29,7 +29,6 @@ contract SidechainLib {
         bytes32 _value,
         bytes32 _fee,
         bytes32 _lsn,
-        bytes32 _stageHeight,
         bytes32 _v,
         bytes32 _r,
         bytes32 _s
@@ -165,7 +164,6 @@ contract SidechainLib {
                   logs[_parameter[0]].value,            // _value
                   _parameter[1],                        // _fee
                   _parameter[2],                        // _lsn
-                  logs[_parameter[0]].stageHeight,      // _stageHeight
                   _parameter[3],                        // _v
                   _parameter[4],                        // _r
                   _parameter[5] );                      // _s
@@ -222,7 +220,6 @@ contract SidechainLib {
                   logs[_parameter[0]].value,            // _value
                   _parameter[1],                        // _fee
                   _parameter[2],                        // _lsn
-                  logs[_parameter[0]].stageHeight,      // _stageHeight
                   _parameter[4],                        // _v
                   _parameter[5],                        // _r
                   _parameter[6] );                      // _s

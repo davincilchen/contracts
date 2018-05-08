@@ -18,7 +18,6 @@ contract Sidechain {
         bytes32 _value,
         bytes32 _fee,
         bytes32 _lsn,
-        bytes32 _stageHeight,
         bytes32 _v,
         bytes32 _r,
         bytes32 _s
