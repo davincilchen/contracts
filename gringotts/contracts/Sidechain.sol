@@ -26,6 +26,7 @@ contract Sidechain {
 
     event VerifyReceipt (
         uint256 indexed _type, // {0: deposit, 1: withdrawal, 2: instantWithdrawal}
+        bytes32 _stageHeight,
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,

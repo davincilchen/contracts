@@ -37,6 +37,7 @@ contract SidechainLib {
 
     event VerifyReceipt (
         uint256 indexed _type, // { 0: deposit, 1: confirmWithdraw, 2: instantWithdrawal}
+        bytes32 _stageHeight,
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,
@@ -172,29 +173,31 @@ contract SidechainLib {
 
     function deposit (bytes32[] _parameter) onlyOwner {
         /*
-        _parameter[0] = _gsn,
-        _parameter[1] = _lightTxHash,
-        _parameter[2] = _fromBalance,
-        _parameter[3] = _toBalance,
-        _parameter[4] = _v_receipt,
-        _parameter[5] = _r_receipt,
-        _parameter[6] = _s_receipt,
-        _parameter[7] = _v_lightTx,
-        _parameter[8] = _r_lightTx,
-        _parameter[9] = _s_lightTx
+        _parameter[0] = stageHeight,
+        _parameter[1] = _gsn,
+        _parameter[2] = _lightTxHash,
+        _parameter[3] = _fromBalance,
+        _parameter[4] = _toBalance,
+        _parameter[5] = _v_receipt,
+        _parameter[6] = _r_receipt,
+        _parameter[7] = _s_receipt,
+        _parameter[8] = _v_lightTx,
+        _parameter[9] = _r_lightTx,
+        _parameter[10] = _s_lightTx
         */
-        require (logs[_parameter[1]].flag == 1);
-        bytes32[] memory bytes32Array = new bytes32[](4);
+        require (logs[_parameter[2]].flag == 1);
+        bytes32[] memory bytes32Array = new bytes32[](5);
         bytes32Array[0] = _parameter[0];
         bytes32Array[1] = _parameter[1];
         bytes32Array[2] = _parameter[2];
         bytes32Array[3] = _parameter[3];
+        bytes32Array[4] = _parameter[4];
 
         bytes32 hashMsg = hashArray(bytes32Array);
-        address signer = verify(hashMsg, uint8(_parameter[4]), _parameter[5], _parameter[6]);
+        address signer = verify(hashMsg, uint8(_parameter[5]), _parameter[6], _parameter[7]);
         require (signer == owner);
-        logs[_parameter[1]].flag = 2; // CompleteDeposit
-        VerifyReceipt (0, _parameter[0], _parameter[1], _parameter[2], _parameter[3], [_parameter[4], _parameter[5], _parameter[6]], [_parameter[7], _parameter[8], _parameter[9]]);
+        logs[_parameter[2]].flag = 2; // CompleteDeposit
+        VerifyReceipt (0, _parameter[0], _parameter[1], _parameter[2], _parameter[3], _parameter[4], [_parameter[5], _parameter[6], _parameter[7]], [_parameter[8], _parameter[9], _parameter[10]]);
     }
 
     function proposeWithdrawal (bytes32[] _parameter) {
@@ -227,20 +230,21 @@ contract SidechainLib {
 
     function confirmWithdrawal (bytes32[] _parameter) onlyOwner {
         /*
-        _parameter[0] = _gsn,
-        _parameter[1] = _lightTxHash,
-        _parameter[2] = _fromBalance,
-        _parameter[3] = _toBalance,
-        _parameter[4] = _v_receipt,
-        _parameter[5] = _r_receipt,
-        _parameter[6] = _s_receipt,
-        _parameter[7] = _v_lightTx,
-        _parameter[8] = _r_lightTx,
-        _parameter[9] = _s_lightTx
+        _parameter[0] = _stageHeight,
+        _parameter[1] = _gsn,
+        _parameter[2] = _lightTxHash,
+        _parameter[3] = _fromBalance,
+        _parameter[4] = _toBalance,
+        _parameter[5] = _v_receipt,
+        _parameter[6] = _r_receipt,
+        _parameter[7] = _s_receipt,
+        _parameter[8] = _v_lightTx,
+        _parameter[9] = _r_lightTx,
+        _parameter[10] = _s_lightTx
         */
-        require (logs[_parameter[1]].flag == 3);
+        require (logs[_parameter[2]].flag == 3);
         // require (uint256(logs[_parameter[1]].stageHeight) < stageHeight);
-        VerifyReceipt (1, _parameter[0], _parameter[1], _parameter[2], _parameter[3], [_parameter[4], _parameter[5], _parameter[6]], [_parameter[7], _parameter[8], _parameter[9]]);
+        VerifyReceipt (1, _parameter[0], _parameter[1], _parameter[2], _parameter[3], _parameter[4], [_parameter[5], _parameter[6], _parameter[7]], [_parameter[8], _parameter[9], _parameter[10]]);
     }
 
     function withdraw (bytes32[] _parameter) {
@@ -272,20 +276,20 @@ contract SidechainLib {
         _parameter[12] = _r_lightTx,
         _parameter[13] = _s_lightTx
         */
-		bytes32[] memory bytes32Array1 = new bytes32[](6);
+		bytes32[] memory bytes32Array1 = new bytes32[](5);
 		bytes32Array1[0] = bytes32(msg.sender);
 		bytes32Array1[1] = 0x0;
 		bytes32Array1[2] = bytes32(_parameter[0]);
 		bytes32Array1[3] = bytes32(_parameter[1]);
 		bytes32Array1[4] = bytes32(_parameter[2]);
-		bytes32Array1[5] = bytes32(_parameter[3]);
 		bytes32 hashMsg1 = hashArray(bytes32Array1);
 		require (hashMsg1 == _parameter[5]);// verify lightTxHash equal or not.
-		bytes32[] memory bytes32Array2 = new bytes32[](4);
-		bytes32Array2[0] = bytes32(_parameter[4]);
-		bytes32Array2[1] = bytes32(_parameter[5]);
-		bytes32Array2[2] = bytes32(_parameter[6]);
-		bytes32Array2[3] = bytes32(_parameter[7]);
+		bytes32[] memory bytes32Array2 = new bytes32[](5);
+        bytes32Array2[0] = bytes32(_parameter[3]);
+		bytes32Array2[1] = bytes32(_parameter[4]);
+		bytes32Array2[2] = bytes32(_parameter[5]);
+		bytes32Array2[3] = bytes32(_parameter[6]);
+		bytes32Array2[4] = bytes32(_parameter[7]);
 		bytes32 hashMsg2 = hashArray(bytes32Array2);
 		address signer = verify(hashMsg2, uint8(_parameter[8]), _parameter[9], _parameter[10]);
 		require (signer == owner);
@@ -296,6 +300,6 @@ contract SidechainLib {
 		logs[_parameter[5]].client = bytes32(msg.sender);
 		logs[_parameter[5]].value = _parameter[0];
 		logs[_parameter[5]].flag = 5;
-		VerifyReceipt (2, _parameter[4], _parameter[5], _parameter[6], _parameter[7], [_parameter[8], _parameter[9], _parameter[10]], [_parameter[11], _parameter[12], _parameter[13]]);
+		VerifyReceipt (2, _parameter[3], _parameter[4], _parameter[5], _parameter[6], _parameter[7], [_parameter[8], _parameter[9], _parameter[10]], [_parameter[11], _parameter[12], _parameter[13]]);
 	}
 }
