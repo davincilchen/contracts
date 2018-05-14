@@ -18,18 +18,26 @@ if (fs.existsSync('./env.js')) {
         host: env.web3Host,
         port: env.web3Port,
         network_id: '*',
-        from: account
+        from: account,
+        gas: 4700000
     }
 
 } else {
     dev = {
         host: 'localhost',
         port: 8545,
-        network_id: '*'
+        network_id: '*',
+        gas: 4700000
     }
 }
 
 module.exports = {
+    solc: {
+        optimizer: {
+            enabled: true,
+            runs: 200
+        }
+    },
     networks: {
         development: dev,
         staging: {

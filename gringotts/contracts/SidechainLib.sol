@@ -1,4 +1,4 @@
-pragma solidity ^0.4.15;
+pragma solidity ^0.4.23;
 
 contract SidechainLib {
     mapping (uint256 => SidechainLib.Stage) private stages;
