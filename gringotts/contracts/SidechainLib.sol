@@ -1,18 +1,26 @@
 pragma solidity ^0.4.23;
 
 contract SidechainLib {
-    mapping (uint256 => SidechainLib.Stage) private stages;
+    mapping (uint256 => SidechainLib.Stage) public stages;
+    mapping (uint256 => SidechainLib.DepositLog) public depositLogs;
     mapping (bytes32 => SidechainLib.Log) public logs;
     uint256 public stageHeight;
     address public owner;
 
-    string constant version = "v1.0.0";
+    string constant version = "v1.1.0";
 
 	struct Stage {
 		bytes32 receiptRootHash;
 		bytes32 balanceRootHash;
 		bytes32 data;
 	}
+
+    struct DepositLog {
+        uint256 stage;
+        bytes32 client;
+        bytes32 value;
+        bool flag;
+    }
 
 	struct Log {
 		bytes32 stageHeight;
@@ -22,16 +30,10 @@ contract SidechainLib {
 		uint256 flag; // { 0: Empty, 1: proposeDeposit, 2: CompleteDeposit, 3: proposeWithdraw, 4: CompleteWithdraw, 5: CompleteInstantWithdraw }
 	}
 
-    event Propose (
-        uint256 indexed _type, // { 0: deposit, 1: withdrawal }
-        bytes32 _lightTxHash,
-        bytes32 _client,
-        bytes32 _value,
-        bytes32 _fee,
-        bytes32 _lsn,
-        bytes32 _v,
-        bytes32 _r,
-        bytes32 _s
+    event ProposeDeposit (
+        uint256 indexed dsn,
+        bytes32 client,
+        bytes32 value
     );
 
     event VerifyReceipt (
@@ -145,28 +147,15 @@ contract SidechainLib {
 
     function proposeDeposit (bytes32[] _parameter) payable {
         /*
-        _parameter[0] = _lightTxHash
-        _parameter[1] = _fee
-        _parameter[2] = _lsn
-        _parameter[3] = _v
-        _parameter[4] = _r
-        _parameter[5] = _s      
+        _parameter[0] = dsn
+        _parameter[1] = msg.sender
+        _parameter[2] = msg.value
         */
-        logs[_parameter[0]].stageHeight = bytes32(stageHeight+1);
-        logs[_parameter[0]].lsn = _parameter[2];
-        logs[_parameter[0]].client = bytes32(msg.sender);
-        logs[_parameter[0]].value = bytes32(msg.value);
-        logs[_parameter[0]].flag = 1; // proposeDeposit
-
-        Propose ( 0,                                    // _type
-                  _parameter[0],                        // _lightTxHash
-                  logs[_parameter[0]].client,           // _client
-                  logs[_parameter[0]].value,            // _value
-                  _parameter[1],                        // _fee
-                  _parameter[2],                        // _lsn
-                  _parameter[3],                        // _v
-                  _parameter[4],                        // _r
-                  _parameter[5] );                      // _s
+        uint256 dsn = uint256(_parameter[0]);
+        depositLogs[dsn].stage = stageHeight;
+        depositLogs[dsn].client = _parameter[1];
+        depositLogs[dsn].value = _parameter[2];
+        ProposeDeposit (dsn, _parameter[1], _parameter[2]);
     }
 
     function deposit (bytes32[] _parameter) onlyOwner {
@@ -213,7 +202,7 @@ contract SidechainLib {
         logs[_parameter[0]].client = bytes32(msg.sender);
         logs[_parameter[0]].value = _parameter[3];
         logs[_parameter[0]].flag = 3; // proposeWithdraw
-
+/*
         Propose ( 1,                                    // _type
                   _parameter[0],                        // _lightTxHash
                   logs[_parameter[0]].client,           // _client
@@ -223,6 +212,7 @@ contract SidechainLib {
                   _parameter[4],                        // _v
                   _parameter[5],                        // _r
                   _parameter[6] );                      // _s
+*/
     }
 
     function confirmWithdrawal (bytes32[] _parameter) onlyOwner {

@@ -3,24 +3,20 @@ pragma solidity ^0.4.23;
 import "./SidechainLib.sol";
 
 contract Sidechain {
-	mapping (uint256 => SidechainLib.Stage) public stages;
-	mapping (bytes32 => SidechainLib.Log) public logs;
-	uint256 public stageHeight;
-	address public owner;
+    mapping (uint256 => SidechainLib.Stage) public stages;
+    mapping (uint256 => SidechainLib.DepositLog) public depositLogs;
+    mapping (bytes32 => SidechainLib.Log) public logs;
+    uint256 public stageHeight;
+    address public owner;
 
-	address public sidechainLibAddress;
-	string public description;
+    address public sidechainLibAddress;
+    uint256 public depositSequenceNumber;
+    string public description;
 
-    event Propose (
-        uint256  indexed _type, // {0: deposit, 1: withdrawal}
-        bytes32 _lightTxHash,
-        bytes32 _client,
-        bytes32 _value,
-        bytes32 _fee,
-        bytes32 _lsn,
-        bytes32 _v,
-        bytes32 _r,
-        bytes32 _s
+    event ProposeDeposit (
+        uint256 indexed dsn,
+        address client,
+        uint256 value
     );
 
     event VerifyReceipt (
@@ -58,5 +54,19 @@ contract Sidechain {
         'instantWithdraw(bytes32[])':    0xbe1946da
         */
         sidechainLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
+    }
+
+    function () payable {
+        /*
+        called delegateToLib to 'proposeDeposit(bytes32[])'
+        gas used : 91404
+        suggested gas : 100000
+        */
+        bytes32[] memory bytes32Array = new bytes32[](3);
+        bytes32Array[0] = bytes32(depositSequenceNumber);
+        bytes32Array[1] = bytes32(msg.sender);
+        bytes32Array[2] = bytes32(msg.value);
+        delegateToLib(0xdcf12aba, bytes32Array);
+        depositSequenceNumber++;
     }
 }
