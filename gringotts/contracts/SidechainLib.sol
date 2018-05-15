@@ -2,7 +2,7 @@ pragma solidity ^0.4.23;
 
 contract SidechainLib {
     mapping (uint256 => SidechainLib.Stage) public stages;
-    mapping (uint256 => SidechainLib.DepositLog) public depositLogs;
+    mapping (bytes32 => SidechainLib.DepositLog) public depositLogs;
     mapping (bytes32 => SidechainLib.Log) public logs;
     uint256 public stageHeight;
     address public owner;
@@ -19,6 +19,7 @@ contract SidechainLib {
         uint256 stage;
         bytes32 client;
         bytes32 value;
+        bytes32 lightTxHash;
         bool flag;
     }
 
@@ -31,26 +32,31 @@ contract SidechainLib {
 	}
 
     event ProposeDeposit (
-        uint256 indexed dsn,
+        bytes32 indexed dsn,
         bytes32 client,
         bytes32 value
     );
 
     event VerifyReceipt (
-        uint256 indexed _type, // { 0: deposit, 1: confirmWithdraw, 2: instantWithdrawal}
-        bytes32 _stageHeight,
+        uint256 indexed _type, // { 0: deposit, 1: proposeWithdrawal, 2: instantWithdrawal}
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,
         bytes32 _toBalance,
-        bytes32[3] _sig_receipt,
-        bytes32[3] _sig_lightTx
+        bytes32[3] _sigLightTx,
+        bytes32[3] _sigReceipt
     );
 
     event AttachStage (
         bytes32 _stageHeight,
         bytes32 _receiptRootHash,
         bytes32 _balanceRootHash
+    );
+
+    event Withdraw (
+        bytes32 _lightTxHash,
+        bytes32 _client,
+        bytes32 _value
     );
 
     modifier onlyOwner {
@@ -142,7 +148,7 @@ contract SidechainLib {
         stages[stageHeight].receiptRootHash = _parameter[0];
         stages[stageHeight].balanceRootHash = _parameter[1];
         stages[stageHeight].data = _parameter[2];
-        AttachStage (bytes32(stageHeight), _parameter[0], _parameter[1]);
+        emit AttachStage (bytes32(stageHeight), _parameter[0], _parameter[1]);
     }
 
     function proposeDeposit (bytes32[] _parameter) payable {
@@ -151,142 +157,175 @@ contract SidechainLib {
         _parameter[1] = msg.sender
         _parameter[2] = msg.value
         */
-        uint256 dsn = uint256(_parameter[0]);
-        depositLogs[dsn].stage = stageHeight;
-        depositLogs[dsn].client = _parameter[1];
-        depositLogs[dsn].value = _parameter[2];
-        ProposeDeposit (dsn, _parameter[1], _parameter[2]);
+        depositLogs[_parameter[0]].stage = stageHeight;
+        depositLogs[_parameter[0]].client = _parameter[1];
+        depositLogs[_parameter[0]].value = _parameter[2];
+        emit ProposeDeposit (_parameter[0], _parameter[1], _parameter[2]);
     }
 
-    function deposit (bytes32[] _parameter) onlyOwner {
+    function deposit (bytes32[] _parameter) public onlyOwner {
         /*
-        _parameter[0] = _stageHeight,
-        _parameter[1] = _gsn,
-        _parameter[2] = _lightTxHash,
-        _parameter[3] = _fromBalance,
-        _parameter[4] = _toBalance,
-        _parameter[5] = _v_receipt,
-        _parameter[6] = _r_receipt,
-        _parameter[7] = _s_receipt,
-        _parameter[8] = _v_lightTx,
-        _parameter[9] = _r_lightTx,
-        _parameter[10] = _s_lightTx
+        _parameter[0] = _lightTxHash
+        _parameter[1] = _to
+        _parameter[2] = _value
+        _parameter[3] = _fee
+        _parameter[4] = _lsn
+
+        clientLtxSignature
+        _parameter[5] = _vFromClient
+        _parameter[6] = _rFromClient
+        _parameter[7] = _sFromClient
+
+        _parameter[8] = _gsn,
+        _parameter[9] = _fromBalance,
+        _parameter[10] = _toBalance,
+        
+        serverLtxSignature
+        _parameter[11] = _vFromServer
+        _parameter[12] = _rFromServer
+        _parameter[13] = _sFromServer
+
+        serverReceiptSignature
+        _parameter[14] = _vFromServer,
+        _parameter[15] = _rFromServer,
+        _parameter[16] = _sFromServer,
+
+        _parameter[17] = dsn
         */
-        require (logs[_parameter[2]].flag == 1);
-        bytes32[] memory bytes32Array = new bytes32[](5);
-        bytes32Array[0] = _parameter[0];
-        bytes32Array[1] = _parameter[1];
-        bytes32Array[2] = _parameter[2];
-        bytes32Array[3] = _parameter[3];
-        bytes32Array[4] = _parameter[4];
+
+        bytes32[] memory bytes32Array = new bytes32[](6);
+        bytes32Array[0] = 0x0; // from
+        bytes32Array[1] = _parameter[1]; // to
+        bytes32Array[2] = _parameter[2]; // value
+        bytes32Array[3] = _parameter[3]; // fee
+        bytes32Array[4] = _parameter[4]; // lsn
+        bytes32Array[5] = bytes32(stageHeight+1); // expected stageHeight
 
         bytes32 hashMsg = hashArray(bytes32Array);
+        require(hashMsg == _parameter[0]);
+        // hashMsg == lightTxHash
         address signer = verify(hashMsg, uint8(_parameter[5]), _parameter[6], _parameter[7]);
+        require(signer == address(_parameter[1]));
+        // signer == _toAddress
+        require(signer == address(depositLogs[_parameter[17]].client));
+        require(_parameter[2] == depositLogs[_parameter[17]].value);
+        depositLogs[_parameter[17]].lightTxHash = hashMsg;
+        depositLogs[_parameter[17]].flag = true;
+
+        bytes32Array = new bytes32[](4);
+        bytes32Array[0] = _parameter[8]; // gsn
+        bytes32Array[1] = _parameter[0]; // lightTxHash
+        bytes32Array[2] = _parameter[9]; // fromBalancem
+        bytes32Array[3] = _parameter[10]; // toBalance
+
+        hashMsg = hashArray(bytes32Array);
+        signer = verify(hashMsg, uint8(_parameter[14]), _parameter[15], _parameter[16]);
         require (signer == owner);
-        logs[_parameter[2]].flag = 2; // CompleteDeposit
-        VerifyReceipt (0, _parameter[0], _parameter[1], _parameter[2], _parameter[3], _parameter[4], [_parameter[5], _parameter[6], _parameter[7]], [_parameter[8], _parameter[9], _parameter[10]]);
+        // signer == owner
+
+        emit VerifyReceipt ( 0,
+                             _parameter[8],
+                             _parameter[0],
+                             _parameter[9],
+                             _parameter[10],
+                             [ _parameter[11],
+                               _parameter[12],
+                               _parameter[13]],
+                             [ _parameter[14],
+                               _parameter[15],
+                               _parameter[16]]);
     }
 
-    function proposeWithdrawal (bytes32[] _parameter) {
-         /*
-        _parameter[0] = _lightTxHash
-        _parameter[1] = _fee
-        _parameter[2] = _lsn
-        _parameter[3] = _value
-        _parameter[4] = _v
-        _parameter[5] = _r
-        _parameter[6] = _s
-        */
-        logs[_parameter[0]].stageHeight = bytes32(stageHeight+1);
-        logs[_parameter[0]].lsn = _parameter[2];
-        logs[_parameter[0]].client = bytes32(msg.sender);
-        logs[_parameter[0]].value = _parameter[3];
-        logs[_parameter[0]].flag = 3; // proposeWithdraw
-/*
-        Propose ( 1,                                    // _type
-                  _parameter[0],                        // _lightTxHash
-                  logs[_parameter[0]].client,           // _client
-                  logs[_parameter[0]].value,            // _value
-                  _parameter[1],                        // _fee
-                  _parameter[2],                        // _lsn
-                  _parameter[4],                        // _v
-                  _parameter[5],                        // _r
-                  _parameter[6] );                      // _s
-*/
-    }
-
-    function confirmWithdrawal (bytes32[] _parameter) onlyOwner {
+    function proposeWithdrawal (bytes32[] _parameter) public {
         /*
-        _parameter[0] = _stageHeight,
-        _parameter[1] = _gsn,
-        _parameter[2] = _lightTxHash,
-        _parameter[3] = _fromBalance,
-        _parameter[4] = _toBalance,
-        _parameter[5] = _v_receipt,
-        _parameter[6] = _r_receipt,
-        _parameter[7] = _s_receipt,
-        _parameter[8] = _v_lightTx,
-        _parameter[9] = _r_lightTx,
-        _parameter[10] = _s_lightTx
+        _parameter[0] = _lightTxHash
+        _parameter[1] = _from
+        _parameter[2] = _value
+        _parameter[3] = _fee
+        _parameter[4] = _lsn
+
+        clientLtxSignature
+        _parameter[5] = _vFromClient
+        _parameter[6] = _rFromClient
+        _parameter[7] = _sFromClient
+
+        _parameter[8] = _gsn,
+        _parameter[9] = _fromBalance,
+        _parameter[10] = _toBalance,
+
+        serverLtxSignature
+        _parameter[11] = _vFromServer
+        _parameter[12] = _rFromServer
+        _parameter[13] = _sFromServer
+
+        serverReceiptSignature
+        _parameter[14] = _vFromServer,
+        _parameter[15] = _rFromServer,
+        _parameter[16] = _sFromServer
         */
-        require (logs[_parameter[2]].flag == 3);
-        // require (uint256(logs[_parameter[1]].stageHeight) < stageHeight);
-        VerifyReceipt (1, _parameter[0], _parameter[1], _parameter[2], _parameter[3], _parameter[4], [_parameter[5], _parameter[6], _parameter[7]], [_parameter[8], _parameter[9], _parameter[10]]);
+
+        bytes32[] memory bytes32Array = new bytes32[](6);
+        bytes32Array[0] = _parameter[1]; // from
+        bytes32Array[1] = 0x0; // to
+        bytes32Array[2] = _parameter[2]; // value
+        bytes32Array[3] = _parameter[3]; // fee
+        bytes32Array[4] = _parameter[4]; // lsn
+        bytes32Array[5] = bytes32(stageHeight+1); // expected stageHeight
+
+        bytes32 hashMsg = hashArray(bytes32Array);
+        require(hashMsg == _parameter[0]);
+        // hashMsg == lightTxHash
+        address signer = verify(hashMsg, uint8(_parameter[5]), _parameter[6], _parameter[7]);
+        require(signer == address(_parameter[1]));
+        // signer == _toAddress
+
+        logs[_parameter[0]].stageHeight = bytes32(stageHeight+1);
+        logs[_parameter[0]].lsn = _parameter[4];
+        logs[_parameter[0]].client = _parameter[1];
+        logs[_parameter[0]].value = bytes32(uint256(_parameter[2]) - uint256(_parameter[3])); // value - fee
+        logs[_parameter[0]].flag = 3; // proposeWithdraw
+
+        bytes32Array = new bytes32[](4);
+        bytes32Array[0] = _parameter[8]; // gsn
+        bytes32Array[1] = _parameter[0]; // lightTxHash
+        bytes32Array[2] = _parameter[9]; // fromBalancem
+        bytes32Array[3] = _parameter[10]; // toBalance
+
+        hashMsg = hashArray(bytes32Array);
+        signer = verify(hashMsg, uint8(_parameter[14]), _parameter[15], _parameter[16]);
+        require (signer == owner);
+        // signer == owner
+
+        uint256 withdrawType = 1;
+        if (uint256(_parameter[2]) <= 100) {
+            address(_parameter[1]).transfer(uint256(_parameter[2]));
+            withdrawType = 2;
+            logs[_parameter[0]].flag = 5; // CompleteInstantWithdraw
+        }
+
+        emit VerifyReceipt ( withdrawType,
+                             _parameter[8],
+                             _parameter[0],
+                             _parameter[9],
+                             _parameter[10],
+                             [ _parameter[11],
+                               _parameter[12],
+                               _parameter[13]],
+                             [ _parameter[14],
+                               _parameter[15],
+                               _parameter[16]]);
     }
 
-    function withdraw (bytes32[] _parameter) {
+    function withdraw (bytes32[] _parameter) public {
         /*
         _parameter[0] = _lightTxHash
         */
         require(logs[_parameter[0]].flag == 3);
-        // require (uint256(logs[_parameter[0]].stageHeight) < stageHeight);
+        require (uint256(logs[_parameter[0]].stageHeight) < stageHeight);
         address client = address(logs[_parameter[0]].client);
         uint256 value = uint256(logs[_parameter[0]].value);
         client.transfer(value);
         logs[_parameter[0]].flag = 4;
+        Withdraw (_parameter[0], bytes32(client), bytes32(value));
     }
-
-    function instantWithdraw (bytes32[] _parameter) {
-	    /*
-        _parameter[0] = _value,
-        _parameter[1] = _fee,
-        _parameter[2] = _lsn,
-        _parameter[3] = _stageHeight,
-        _parameter[4] = _gsn,
-        _parameter[5] = _lightTxHash,
-        _parameter[6] = _fromBlalnce,
-        _parameter[7] = _toBalance,
-        _parameter[8] = _v_receipt,
-        _parameter[9] = _r_receipt,
-        _parameter[10] = _s_receipt,
-        _parameter[11] = _v_lightTx,
-        _parameter[12] = _r_lightTx,
-        _parameter[13] = _s_lightTx
-        */
-		bytes32[] memory bytes32Array1 = new bytes32[](5);
-		bytes32Array1[0] = bytes32(msg.sender);
-		bytes32Array1[1] = 0x0;
-		bytes32Array1[2] = bytes32(_parameter[0]);
-		bytes32Array1[3] = bytes32(_parameter[1]);
-		bytes32Array1[4] = bytes32(_parameter[2]);
-		bytes32 hashMsg1 = hashArray(bytes32Array1);
-		require (hashMsg1 == _parameter[5]);// verify lightTxHash equal or not.
-		bytes32[] memory bytes32Array2 = new bytes32[](5);
-		bytes32Array2[0] = bytes32(_parameter[3]);
-		bytes32Array2[1] = bytes32(_parameter[4]);
-		bytes32Array2[2] = bytes32(_parameter[5]);
-		bytes32Array2[3] = bytes32(_parameter[6]);
-		bytes32Array2[4] = bytes32(_parameter[7]);
-		bytes32 hashMsg2 = hashArray(bytes32Array2);
-		address signer = verify(hashMsg2, uint8(_parameter[8]), _parameter[9], _parameter[10]);
-		require (signer == owner);
-		msg.sender.transfer(uint256(_parameter[0]));// transfer value
-
-		logs[_parameter[5]].stageHeight = _parameter[3];
-		logs[_parameter[5]].lsn = _parameter[2];
-		logs[_parameter[5]].client = bytes32(msg.sender);
-		logs[_parameter[5]].value = _parameter[0];
-		logs[_parameter[5]].flag = 5;
-		VerifyReceipt (2, _parameter[3], _parameter[4], _parameter[5], _parameter[6], _parameter[7], [_parameter[8], _parameter[9], _parameter[10]], [_parameter[11], _parameter[12], _parameter[13]]);
-	}
 }

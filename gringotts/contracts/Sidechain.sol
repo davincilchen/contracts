@@ -4,7 +4,7 @@ import "./SidechainLib.sol";
 
 contract Sidechain {
     mapping (uint256 => SidechainLib.Stage) public stages;
-    mapping (uint256 => SidechainLib.DepositLog) public depositLogs;
+    mapping (bytes32 => SidechainLib.DepositLog) public depositLogs;
     mapping (bytes32 => SidechainLib.Log) public logs;
     uint256 public stageHeight;
     address public owner;
@@ -20,20 +20,25 @@ contract Sidechain {
     );
 
     event VerifyReceipt (
-        uint256 indexed _type, // {0: deposit, 1: withdrawal, 2: instantWithdrawal}
-        bytes32 _stageHeight,
+        uint256 indexed _type, // { 0: deposit, 1: proposeWithdrawal, 2: instantWithdrawal}
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,
         bytes32 _toBalance,
-        bytes32[3] _sig_receipt,
-        bytes32[3] _sig_lightTx
+        bytes32[3] _sigLightTx,
+        bytes32[3] _sigReceipt
     );
 
     event AttachStage (
         bytes32 _stageHeight,
         bytes32 _receiptRootHash,
         bytes32 _balanceRootHash
+    );
+
+    event Withdraw (
+        bytes32 _lightTxHash,
+        bytes32 _client,
+        bytes32 _value
     );
 
     function Sidechain (address _sidechainOwner, address _sidechainLibAddress) {
