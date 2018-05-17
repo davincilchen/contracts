@@ -4,8 +4,8 @@ import "./SidechainLib.sol";
 
 contract Sidechain {
     mapping (uint256 => SidechainLib.Stage) public stages;
-    mapping (bytes32 => SidechainLib.DepositLog) public depositLogs;
-    mapping (bytes32 => SidechainLib.Log) public logs;
+    mapping (bytes32 => SidechainLib.Log) public depositLogs;
+    mapping (bytes32 => SidechainLib.Log) public withdrawLogs;
     uint256 public stageHeight;
     address public owner;
 
@@ -14,9 +14,9 @@ contract Sidechain {
     string public description;
 
     event ProposeDeposit (
-        uint256 indexed dsn,
-        address client,
-        uint256 value
+        bytes32 indexed _dsn,
+        bytes32 _client,
+        bytes32 _value
     );
 
     event VerifyReceipt (
@@ -36,7 +36,7 @@ contract Sidechain {
     );
 
     event Withdraw (
-        bytes32 _lightTxHash,
+        bytes32 indexed _wsn,
         bytes32 _client,
         bytes32 _value
     );
@@ -54,7 +54,6 @@ contract Sidechain {
         'proposeDeposit(bytes32[])':     0xdcf12aba
         'deposit(bytes32[])':            0x7b9d7d74
         'proposeWithdrawal(bytes32[])':  0x68ff1929
-        'confirmWithdrawal(bytes32[])':  0xe0671980
         'withdraw(bytes32[])':           0xfe2b3924
         'instantWithdraw(bytes32[])':    0xbe1946da
         */
@@ -64,8 +63,8 @@ contract Sidechain {
     function () payable {
         /*
         called delegateToLib to 'proposeDeposit(bytes32[])'
-        gas used : 91404
-        suggested gas : 100000
+        gas used : 127075
+        suggested gas : 150000
         */
         bytes32[] memory bytes32Array = new bytes32[](3);
         bytes32Array[0] = bytes32(depositSequenceNumber);
