@@ -3,7 +3,7 @@ pragma solidity ^0.4.23;
 contract SidechainLib {
     mapping (uint256 => SidechainLib.Stage) public stages;
     mapping (bytes32 => SidechainLib.Log) public depositLogs;
-    mapping (bytes32 => SidechainLib.Log) public withdrawLogs;
+    mapping (bytes32 => SidechainLib.Log) public withdrawalLogs;
     uint256 public stageHeight;
     address public owner;
 
@@ -245,9 +245,9 @@ contract SidechainLib {
         bytes32Array[1] = _parameter[9];
         bytes32 wsn = hashArray(bytes32Array);
 
-        withdrawLogs[wsn].stage = bytes32(stageHeight+1);
-        withdrawLogs[wsn].client = _parameter[2];
-        withdrawLogs[wsn].value = bytes32(uint256(_parameter[3]) - uint256(_parameter[4])); // value - fee
+        withdrawalLogs[wsn].stage = bytes32(stageHeight+1);
+        withdrawalLogs[wsn].client = _parameter[1];
+        withdrawalLogs[wsn].value = bytes32(uint256(_parameter[3]) - uint256(_parameter[4])); // value - fee
 
         emit VerifyReceipt ( 1,
                              _parameter[9],
@@ -267,20 +267,20 @@ contract SidechainLib {
         _parameter[0] = _wsn
         */
         // flag = false
-        require(!withdrawLogs[_parameter[0]].flag);
+        require(!withdrawalLogs[_parameter[0]].flag);
         // over challenge time
-        require (uint256(withdrawLogs[_parameter[0]].stage) < stageHeight);
-        address client = address(withdrawLogs[_parameter[0]].client);
-        uint256 value = uint256(withdrawLogs[_parameter[0]].value);
+        require (uint256(withdrawalLogs[_parameter[0]].stage) < stageHeight);
+        address client = address(withdrawalLogs[_parameter[0]].client);
+        uint256 value = uint256(withdrawalLogs[_parameter[0]].value);
         client.transfer(value);
-        withdrawLogs[_parameter[0]].flag = true;
+        withdrawalLogs[_parameter[0]].flag = true;
 
         emit Withdraw (_parameter[0], bytes32(client), bytes32(value));
     }
 
     function instantWithdraw (bytes32[] _parameter) isSigValid (_parameter) public {
         // instantWithdraw condition
-        require (uint256(_parameter[3]) <= 100);
+        require (uint256(_parameter[3]) <= 10000000000000000000);
         /*
         wsn = concat((stageHeight+1) + gsn)
         */
@@ -289,10 +289,10 @@ contract SidechainLib {
         bytes32Array[1] = _parameter[9];
         bytes32 wsn = hashArray(bytes32Array);
 
-        withdrawLogs[wsn].stage = bytes32(stageHeight+1);
-        withdrawLogs[wsn].client = _parameter[2];
-        withdrawLogs[wsn].value = _parameter[3];
-        withdrawLogs[wsn].flag = true;
+        withdrawalLogs[wsn].stage = bytes32(stageHeight+1);
+        withdrawalLogs[wsn].client = _parameter[1];
+        withdrawalLogs[wsn].value = _parameter[3];
+        withdrawalLogs[wsn].flag = true;
 
         address(_parameter[2]).transfer(uint256(_parameter[3]));
 

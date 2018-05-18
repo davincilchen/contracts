@@ -5,7 +5,7 @@ import "./SidechainLib.sol";
 contract Sidechain {
     mapping (uint256 => SidechainLib.Stage) public stages;
     mapping (bytes32 => SidechainLib.Log) public depositLogs;
-    mapping (bytes32 => SidechainLib.Log) public withdrawLogs;
+    mapping (bytes32 => SidechainLib.Log) public withdrawalLogs;
     uint256 public stageHeight;
     address public owner;
 
