@@ -7,11 +7,11 @@ contract SidechainLib {
     uint256 public stageHeight;
     address public owner;
 
-    string constant version = "v1.2.0";
+    string constant version = "v1.2.1";
 
 	struct Stage {
 		bytes32 receiptRootHash;
-		bytes32 balanceRootHash;
+		bytes32 accountRootHash;
 		bytes32 data;
 	}
 
@@ -38,10 +38,10 @@ contract SidechainLib {
         bytes32[3] _sigReceipt
     );
 
-    event AttachStage (
+    event Attach (
         bytes32 _stageHeight,
         bytes32 _receiptRootHash,
-        bytes32 _balanceRootHash
+        bytes32 _accountRootHash
     );
 
     event Withdraw (
@@ -194,17 +194,17 @@ contract SidechainLib {
         return signer;
     }
 
-    function attachStage (bytes32[] _parameter) {
+    function attach (bytes32[] _parameter) {
         /*
         _parameter[0] = _receiptRootHash
-        _parameter[1] = _balanceRootHash
+        _parameter[1] = _accountRootHash
         _parameter[2] = _data
         */
         stageHeight++;
         stages[stageHeight].receiptRootHash = _parameter[0];
-        stages[stageHeight].balanceRootHash = _parameter[1];
+        stages[stageHeight].accountRootHash = _parameter[1];
         stages[stageHeight].data = _parameter[2];
-        emit AttachStage (bytes32(stageHeight), _parameter[0], _parameter[1]);
+        emit Attach (bytes32(stageHeight), _parameter[0], _parameter[1]);
     }
 
     function proposeDeposit (bytes32[] _parameter) payable {

@@ -29,10 +29,10 @@ contract Sidechain {
         bytes32[3] _sigReceipt
     );
 
-    event AttachStage (
+    event Attach (
         bytes32 _stageHeight,
         bytes32 _receiptRootHash,
-        bytes32 _balanceRootHash
+        bytes32 _accountRootHash
     );
 
     event Withdraw (
@@ -50,7 +50,7 @@ contract Sidechain {
 
     function delegateToLib (bytes4 _signature, bytes32[] _parameter) payable {
         /*
-        'attachStage(bytes32[])':        0x1655e8ac
+        'attach(bytes32[])':             0x95aa4aac
         'proposeDeposit(bytes32[])':     0xdcf12aba
         'deposit(bytes32[])':            0x7b9d7d74
         'proposeWithdrawal(bytes32[])':  0x68ff1929
@@ -64,6 +64,7 @@ contract Sidechain {
         /*
         called delegateToLib to 'proposeDeposit(bytes32[])'
         gas used : 127075
+        gad used : 106627
         suggested gas : 150000
         */
         bytes32[] memory bytes32Array = new bytes32[](3);
