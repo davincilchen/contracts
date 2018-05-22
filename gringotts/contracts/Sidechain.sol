@@ -9,6 +9,7 @@ contract Sidechain {
     uint256 public stageHeight;
     address public owner;
 
+    address public managerAddress;
     address public sidechainLibAddress;
     uint256 public depositSequenceNumber;
     string public description;
@@ -44,6 +45,7 @@ contract Sidechain {
     function Sidechain (address _sidechainOwner, address _sidechainLibAddress) {
         owner = _sidechainOwner;
         sidechainLibAddress = _sidechainLibAddress;
+        managerAddress = msg.sender;
         description = "test";
         stages[stageHeight].data = "genisis stage";
     }
