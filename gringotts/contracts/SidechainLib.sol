@@ -245,7 +245,7 @@ contract SidechainLib {
 
     function proposeWithdrawal (bytes32[] _parameter) isSigValid (_parameter) public {
         /*
-        wsn = concat(stageHeight + gsn)
+        wsn = concat(from + nonce)
         */
         bytes32[] memory bytes32Array = new bytes32[](2);
         bytes32Array[0] = _parameter[1]; // from
