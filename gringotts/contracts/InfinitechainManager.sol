@@ -20,14 +20,29 @@ contract InfinitechainManager {
 	function InfinitechainManager(address _sidechainLibAddress) {
 		owner = msg.sender;
 		sidechainLibAddress = _sidechainLibAddress;
-		deploySidechain(owner);
 	}
 
-	function deploySidechain(address _sidechainOwner) onlyOwner {
-		sidechainNumber++;
-		address newSidechain = new Sidechain(_sidechainOwner, sidechainLibAddress);
-		sidechainAddress[sidechainNumber] = newSidechain;
+	// Function Overloading
+	function deploySidechain() onlyOwner {
+		address newSidechain = new Sidechain(owner, sidechainLibAddress, address(0), 10 ether);
+		sidechainAddress[sidechainNumber++] = newSidechain;
+		DeploySidechain(sidechainNumber, newSidechain);		
+	}
+
+	function deploySidechain(
+		address _sidechainOwner,
+		address _assetAddress,
+		uint256 _instantWithdrawMaximum
+	) 
+		onlyOwner 
+	{
+		address newSidechain = new Sidechain(_sidechainOwner, sidechainLibAddress, _assetAddress, _instantWithdrawMaximum);
+		sidechainAddress[sidechainNumber++] = newSidechain;
 		DeploySidechain(sidechainNumber, newSidechain);
+	}
+
+	function setSidechainLibAddress(address _sidechainLibAddress) onlyOwner {
+		sidechainLibAddress = _sidechainLibAddress;
 	}
 
 	function setAssetAddress(uint256 _assetID, address _tokenAddress) onlyOwner {

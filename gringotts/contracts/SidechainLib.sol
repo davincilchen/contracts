@@ -5,9 +5,10 @@ contract SidechainLib {
     mapping (bytes32 => SidechainLib.Log) public depositLogs;
     mapping (bytes32 => SidechainLib.Log) public withdrawalLogs;
     uint256 public stageHeight;
+    uint256 public instantWithdrawMaximum;
     address public owner;
 
-    string constant version = "v1.2.1";
+    string constant version = "v1.2.2";
 
 	struct Stage {
 		bytes32 receiptRootHash;
@@ -287,7 +288,7 @@ contract SidechainLib {
 
     function instantWithdraw (bytes32[] _parameter) isSigValid (_parameter) public {
         // instantWithdraw condition
-        require (uint256(_parameter[4]) <= 10 ether);
+        require (uint256(_parameter[4]) <= instantWithdrawMaximum);
         /*
         wsn = concat(from + nonce)
         */

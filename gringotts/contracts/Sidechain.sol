@@ -7,12 +7,13 @@ contract Sidechain {
     mapping (bytes32 => SidechainLib.Log) public depositLogs;
     mapping (bytes32 => SidechainLib.Log) public withdrawalLogs;
     uint256 public stageHeight;
+    uint256 public instantWithdrawMaximum;
     address public owner;
 
     address public managerAddress;
     address public sidechainLibAddress;
+    address public assetAddress;
     uint256 public depositSequenceNumber;
-    string public description;
 
     event ProposeDeposit (
         bytes32 indexed _dsn,
@@ -21,7 +22,7 @@ contract Sidechain {
     );
 
     event VerifyReceipt (
-        uint256 indexed _type, // { 0: deposit, 1: proposeWithdrawal, 2: instantWithdrawal}
+        uint256 indexed _type, // { 0: deposit, 1: proposeWithdrawal, 2: instantWithdraw}
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,
@@ -42,11 +43,17 @@ contract Sidechain {
         bytes32 _value
     );
 
-    function Sidechain (address _sidechainOwner, address _sidechainLibAddress) {
+    function Sidechain (
+        address _sidechainOwner,
+        address _sidechainLibAddress,
+        address _assetAddress,
+        uint256 _instantWithdrawMaximum
+    ) {
+        managerAddress = msg.sender;
         owner = _sidechainOwner;
         sidechainLibAddress = _sidechainLibAddress;
-        managerAddress = msg.sender;
-        description = "test";
+        assetAddress = _assetAddress;
+        instantWithdrawMaximum = _instantWithdrawMaximum;
         stages[stageHeight].data = "genisis stage";
     }
 
