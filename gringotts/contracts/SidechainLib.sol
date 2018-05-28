@@ -1,14 +1,20 @@
 pragma solidity ^0.4.23;
 
+interface Token {
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
+}
+
 contract SidechainLib {
     mapping (uint256 => SidechainLib.Stage) public stages;
     mapping (bytes32 => SidechainLib.Log) public depositLogs;
     mapping (bytes32 => SidechainLib.Log) public withdrawalLogs;
     uint256 public stageHeight;
     uint256 public instantWithdrawMaximum;
+    uint256 public depositSequenceNumber;
     address public owner;
+    address public assetAddress;
 
-    string constant version = "v1.2.2";
+    string constant version = "v1.3.0";
 
 	struct Stage {
 		bytes32 receiptRootHash;
@@ -217,15 +223,19 @@ contract SidechainLib {
 
     function proposeDeposit (bytes32[] _parameter) payable {
         /*
-        _parameter[0] = dsn
-        _parameter[1] = msg.sender
-        _parameter[2] = msg.value
+        _parameter[0] = client
+        _parameter[1] = value
         */
-        depositLogs[_parameter[0]].stage = bytes32(stageHeight + 1);
-        depositLogs[_parameter[0]].client = _parameter[1];
-        depositLogs[_parameter[0]].value = _parameter[2];
+        bytes32 dsn = bytes32(depositSequenceNumber);
+        if(assetAddress != address(0)) {
+            Token(assetAddress).transferFrom(address(_parameter[0]), this, uint256(_parameter[1]));
+        }
+        depositLogs[dsn].stage = bytes32(stageHeight + 1);
+        depositLogs[dsn].client = _parameter[0];
+        depositLogs[dsn].value = _parameter[1];
+        depositSequenceNumber++;
 
-        emit ProposeDeposit (_parameter[0], _parameter[1], _parameter[2]);
+        emit ProposeDeposit (bytes32(depositSequenceNumber), _parameter[0], _parameter[1]);
     }
 
     function deposit (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {

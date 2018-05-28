@@ -8,12 +8,12 @@ contract Sidechain {
     mapping (bytes32 => SidechainLib.Log) public withdrawalLogs;
     uint256 public stageHeight;
     uint256 public instantWithdrawMaximum;
+    uint256 public depositSequenceNumber;
     address public owner;
+    address public assetAddress;
 
     address public managerAddress;
     address public sidechainLibAddress;
-    address public assetAddress;
-    uint256 public depositSequenceNumber;
 
     event ProposeDeposit (
         bytes32 indexed _dsn,
@@ -76,11 +76,9 @@ contract Sidechain {
         gad used : 106627
         suggested gas : 150000
         */
-        bytes32[] memory bytes32Array = new bytes32[](3);
-        bytes32Array[0] = bytes32(depositSequenceNumber);
-        bytes32Array[1] = bytes32(msg.sender);
-        bytes32Array[2] = bytes32(msg.value);
+        bytes32[] memory bytes32Array = new bytes32[](2);
+        bytes32Array[0] = bytes32(msg.sender);
+        bytes32Array[1] = bytes32(msg.value);
         delegateToLib(0xdcf12aba, bytes32Array);
-        depositSequenceNumber++;
     }
 }

@@ -22,13 +22,6 @@ contract InfinitechainManager {
 		sidechainLibAddress = _sidechainLibAddress;
 	}
 
-	// Function Overloading
-	function deploySidechain() onlyOwner {
-		address newSidechain = new Sidechain(owner, sidechainLibAddress, address(0), 10 ether);
-		sidechainAddress[sidechainNumber++] = newSidechain;
-		DeploySidechain(sidechainNumber, newSidechain);		
-	}
-
 	function deploySidechain(
 		address _sidechainOwner,
 		address _assetAddress,
