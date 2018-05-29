@@ -1,6 +1,7 @@
 pragma solidity ^0.4.23;
 
 interface Token {
+    function transfer(address _to, uint256 _value) public returns (bool success);
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
 }
 
@@ -290,9 +291,12 @@ contract SidechainLib {
         require (uint256(withdrawalLogs[_parameter[0]].stage) < stageHeight);
         address client = address(withdrawalLogs[_parameter[0]].client);
         uint256 value = uint256(withdrawalLogs[_parameter[0]].value);
-        client.transfer(value);
-        withdrawalLogs[_parameter[0]].flag = true;
-
+        if(assetAddress != address(0)) {
+            Token(assetAddress).transfer(client, value);
+        } else {
+            client.transfer(value);
+            withdrawalLogs[_parameter[0]].flag = true;
+        }
         emit Withdraw (_parameter[0], bytes32(client), bytes32(value));
     }
 
@@ -312,7 +316,11 @@ contract SidechainLib {
         withdrawalLogs[wsn].value = _parameter[4];
         withdrawalLogs[wsn].flag = true;
 
-        address(_parameter[2]).transfer(uint256(_parameter[4]));
+        if(assetAddress != address(0)) {
+            Token(assetAddress).transfer(address(_parameter[2]), uint256(_parameter[4]));
+        } else {
+            address(_parameter[2]).transfer(uint256(_parameter[4]));
+        }
 
         emit VerifyReceipt ( 2,
                              _parameter[12],
