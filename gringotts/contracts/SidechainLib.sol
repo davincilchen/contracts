@@ -236,7 +236,7 @@ contract SidechainLib {
         depositLogs[dsn].value = _parameter[1];
         depositSequenceNumber++;
 
-        emit ProposeDeposit (bytes32(depositSequenceNumber), _parameter[0], _parameter[1]);
+        emit ProposeDeposit (dsn, _parameter[0], _parameter[1]);
     }
 
     function deposit (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
