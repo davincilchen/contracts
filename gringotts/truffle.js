@@ -8,10 +8,7 @@ if (fs.existsSync('./env.js')) {
 
     let web3Url = 'http://' + env.web3Host + ':' + env.web3Port;
     let web3 = new Web3(new Web3.providers.HttpProvider(web3Url));
-    const privatekey = env.privateKey;
-    const publickey = '0x' + EthUtils.privateToPublic('0x' + privatekey).toString('hex');
-    const account = '0x' + EthUtils.pubToAddress(publickey).toString('hex');
-
+    const account = env.account;
     web3.personal.unlockAccount(account, env.password);
     
     dev = {
