@@ -1,6 +1,6 @@
 # BOLT Contract
 
-Deploy a BOLT contract is the first thing you need to do in BOLT protocol. The contract itself manages every deposit/withdrawal of ERC20 assets and ETH. Furthermore, it checks and validates all the transactions to prevent any invalid withdrawal. A centrailized service collaborates with our [Gringotts](https://github.com/BOLT-Protocol/gringotts) could prevent client's digital assets from hacking, collusion or any other potential attack so that a centralized service could build the trust with its customers with pure cryptographic and mathematics.
+Deploy a BOLT contract is the first thing you need to do in BOLT protocol. The contract itself manages every deposit/withdrawal of ERC20 assets and ETH. Furthermore, it checks and validates all the transactions to prevent any invalid withdrawal. A centrailized service collaborates with our [Gringotts](https://github.com/BOLT-Protocol/gringotts) could prevent client's digital assets from hacking, collusion or any other potential attack so that a centralized service could build the trust with its customers with pure cryptographic and mathematics.
 
 ## How to deploy
 
