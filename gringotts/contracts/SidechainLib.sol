@@ -228,7 +228,7 @@ contract SidechainLib {
             transfer 0xa9059cbb
             transferFrom 0x23b872dd
             */
-            assetAddress.call(0x23b872dd, address(_parameter[0]), this, uint256(_parameter[1]));
+            require(assetAddress.call(0x23b872dd, address(_parameter[0]), this, uint256(_parameter[1])));
         }
         depositLogs[dsn].stage = bytes32(stageHeight + 1);
         depositLogs[dsn].client = _parameter[0];
@@ -295,11 +295,11 @@ contract SidechainLib {
             transfer 0xa9059cbb
             transferFrom 0x23b872dd
             */
-            assetAddress.call(0xa9059cbb, client, value);
+            require(assetAddress.call(0xa9059cbb, client, value));
         } else {
             client.transfer(value);
-            withdrawalLogs[_parameter[0]].flag = true;
         }
+        withdrawalLogs[_parameter[0]].flag = true;
         emit Withdraw (_parameter[0], bytes32(client), bytes32(value));
     }
 
@@ -324,7 +324,7 @@ contract SidechainLib {
             transfer 0xa9059cbb
             transferFrom 0x23b872dd
             */
-            assetAddress.call(0xa9059cbb, address(_parameter[2]), uint256(_parameter[4]));
+            require(assetAddress.call(0xa9059cbb, address(_parameter[2]), uint256(_parameter[4])));
         } else {
             address(_parameter[2]).transfer(uint256(_parameter[4]));
         }
