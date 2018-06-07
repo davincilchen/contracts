@@ -1,10 +1,5 @@
 pragma solidity ^0.4.23;
 
-interface Token {
-    function transfer(address _to, uint256 _value) public returns (bool success);
-    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
-}
-
 contract SidechainLib {
     mapping (uint256 => SidechainLib.Stage) public stages;
     mapping (bytes32 => SidechainLib.Log) public depositLogs;
@@ -229,7 +224,11 @@ contract SidechainLib {
         */
         bytes32 dsn = bytes32(depositSequenceNumber);
         if(assetAddress != address(0)) {
-            Token(assetAddress).transferFrom(address(_parameter[0]), this, uint256(_parameter[1]));
+            /*
+            transfer 0xa9059cbb
+            transferFrom 0x23b872dd
+            */
+            assetAddress.call(0x23b872dd, address(_parameter[0]), this, uint256(_parameter[1]));
         }
         depositLogs[dsn].stage = bytes32(stageHeight + 1);
         depositLogs[dsn].client = _parameter[0];
@@ -292,7 +291,11 @@ contract SidechainLib {
         address client = address(withdrawalLogs[_parameter[0]].client);
         uint256 value = uint256(withdrawalLogs[_parameter[0]].value);
         if(assetAddress != address(0)) {
-            Token(assetAddress).transfer(client, value);
+            /*
+            transfer 0xa9059cbb
+            transferFrom 0x23b872dd
+            */
+            assetAddress.call(0xa9059cbb, client, value);
         } else {
             client.transfer(value);
             withdrawalLogs[_parameter[0]].flag = true;
@@ -317,7 +320,11 @@ contract SidechainLib {
         withdrawalLogs[wsn].flag = true;
 
         if(assetAddress != address(0)) {
-            Token(assetAddress).transfer(address(_parameter[2]), uint256(_parameter[4]));
+            /*
+            transfer 0xa9059cbb
+            transferFrom 0x23b872dd
+            */
+            assetAddress.call(0xa9059cbb, address(_parameter[2]), uint256(_parameter[4]));
         } else {
             address(_parameter[2]).transfer(uint256(_parameter[4]));
         }
