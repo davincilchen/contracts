@@ -38,10 +38,10 @@ module.exports = {
     networks: {
         development: dev,
         staging: {
-            host: '54.254.162.50',
-            port: '8545',
+            host: '<HOST_DOMAIN>',
+            port: '<HOST_PORT>',
             network_id: '*',
-            from: '0x50afb1b4c52c64daed49ab8c3aa82b0609b75db0'
+            from: '<KEY>'
         }
     }
 }
