@@ -6,11 +6,11 @@ contract Sidechain {
     mapping (uint256 => SidechainLib.Stage) public stages;
     mapping (bytes32 => SidechainLib.Log) public depositLogs;
     mapping (bytes32 => SidechainLib.Log) public withdrawalLogs;
+    mapping (address => bool) public assetAddresses;
     uint256 public stageHeight;
     uint256 public instantWithdrawMaximum;
     uint256 public depositSequenceNumber;
     address public owner;
-    address public assetAddress;
 
     address public managerAddress;
     address public sidechainLibAddress;
@@ -46,15 +46,18 @@ contract Sidechain {
     function Sidechain (
         address _sidechainOwner,
         address _sidechainLibAddress,
-        address _assetAddress,
+        address[] _assetAddresses,
         uint256 _instantWithdrawMaximum
     ) {
         managerAddress = msg.sender;
         owner = _sidechainOwner;
         sidechainLibAddress = _sidechainLibAddress;
-        assetAddress = _assetAddress;
         instantWithdrawMaximum = _instantWithdrawMaximum;
         stages[stageHeight].data = "genisis stage";
+        
+        for (uint i=0; i<_assetAddresses.length; i++) {
+            assetAddresses[_assetAddresses[i]] = true;
+        }
     }
 
     function delegateToLib (bytes4 _signature, bytes32[] _parameter) payable {
@@ -70,6 +73,9 @@ contract Sidechain {
     }
 
     function () payable {
+        if(assetAddresses[msg.sender] == false) {
+            revert();
+        }
         /*
         called delegateToLib to 'proposeDeposit(bytes32[])'
         gas used : 127075
@@ -80,5 +86,25 @@ contract Sidechain {
         bytes32Array[0] = bytes32(msg.sender);
         bytes32Array[1] = bytes32(msg.value);
         delegateToLib(0xdcf12aba, bytes32Array);
+    }
+    
+    function setAssetAddress(address asAddress) {
+        assetAddresses[asAddress] = true;
+    }
+    
+    function unsetAssetAddress(address asAddress) {
+        delete assetAddresses[asAddress];
+    }
+    
+    function tokenFallback(address _from, uint _value) public returns (bool success) {
+        if(assetAddresses[msg.sender] == false) {
+            revert();
+        } else {
+            bytes32[] memory bytes32Array = new bytes32[](2);
+            bytes32Array[0] = bytes32(_from);
+            bytes32Array[1] = bytes32(_value);
+            delegateToLib(0xdcf12aba, bytes32Array);
+            return true;
+        }
     }
 }
