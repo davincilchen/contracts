@@ -313,7 +313,7 @@ contract SidechainLib {
         bytes32Array[0] = _parameter[1]; // from
         bytes32Array[1] = _parameter[6]; // nonce
         bytes32 wsn = hashArray(bytes32Array);
-
+        require(withdrawalLogs[wsn].flag == false);
         withdrawalLogs[wsn].stage = bytes32(stageHeight+1);
         withdrawalLogs[wsn].client = _parameter[1];
         withdrawalLogs[wsn].value = _parameter[4];
@@ -326,7 +326,7 @@ contract SidechainLib {
             */
             require(assetAddress.call(0xa9059cbb, address(_parameter[2]), uint256(_parameter[4])));
         } else {
-            address(_parameter[2]).transfer(uint256(_parameter[4]));
+            address(_parameter[1]).transfer(uint256(_parameter[4]));
         }
 
         emit VerifyReceipt ( 2,
