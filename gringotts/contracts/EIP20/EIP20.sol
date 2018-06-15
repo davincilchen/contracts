@@ -7,6 +7,7 @@ pragma solidity ^0.4.21;
 
 import "./EIP20Interface.sol";
 import "./SafeMath.sol";
+import "./ERC223Receiving.sol";
 
 contract EIP20 is EIP20Interface {
     using SafeMath for uint256;
@@ -36,11 +37,29 @@ contract EIP20 is EIP20Interface {
         symbol = _tokenSymbol;                               // Set the symbol for display purposes
     }
 
-    function transfer(address _to, uint256 _value) public returns (bool success) {
-        require(balances[msg.sender] >= _value);
+    // function transfer(address _to, uint256 _value) public returns (bool success) {
+    //     require(balances[msg.sender] >= _value);
+    //     balances[msg.sender] = balances[msg.sender].sub(_value);
+    //     balances[_to] = balances[_to].add(_value);
+    //     emit Transfer(msg.sender, _to, _value); //solhint-disable-line indent, no-unused-vars
+    //     return true;
+    // }
+
+    function transfer(address _to, uint _value) public returns (bool success) {
+        uint codeLength;
+
+        assembly {
+            // Retrieve the size of the code on target address, this needs assembly .
+            codeLength := extcodesize(_to)
+        }
+
         balances[msg.sender] = balances[msg.sender].sub(_value);
         balances[_to] = balances[_to].add(_value);
-        emit Transfer(msg.sender, _to, _value); //solhint-disable-line indent, no-unused-vars
+        if(codeLength>0) {
+            ERC223ReceivingContract receiver = ERC223ReceivingContract(_to);
+            require(receiver.tokenFallback(msg.sender, _value));
+        }
+        emit Transfer(msg.sender, _to, _value);
         return true;
     }
 

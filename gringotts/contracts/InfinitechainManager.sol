@@ -8,7 +8,6 @@ contract InfinitechainManager {
 	uint256 public sidechainNumber;
 	mapping (uint256 => address) public sidechainAddress;
 	// id = 0, for ledger use
-	mapping (uint256 => address) public assetAddress;
 
 	event DeploySidechain(uint256 _sidechainId, address _sidechainAddress);
 
@@ -24,22 +23,17 @@ contract InfinitechainManager {
 
 	function deploySidechain(
 		address _sidechainOwner,
-		address _assetAddress,
+		address[] _assetAddresses,
 		uint256 _instantWithdrawMaximum
 	) 
 		onlyOwner 
 	{
-		address newSidechain = new Sidechain(_sidechainOwner, sidechainLibAddress, _assetAddress, _instantWithdrawMaximum);
+		address newSidechain = new Sidechain(_sidechainOwner, sidechainLibAddress, _assetAddresses, _instantWithdrawMaximum);
 		sidechainAddress[sidechainNumber++] = newSidechain;
 		DeploySidechain(sidechainNumber, newSidechain);
 	}
 
 	function setSidechainLibAddress(address _sidechainLibAddress) onlyOwner {
 		sidechainLibAddress = _sidechainLibAddress;
-	}
-
-	function setAssetAddress(uint256 _assetID, address _tokenAddress) onlyOwner {
-		require(_assetID != 0);
-		assetAddress[_assetID] = _tokenAddress;
 	}
 }
