@@ -2,7 +2,6 @@
 Implements EIP20 token standard: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
 .*/
 
-
 pragma solidity ^0.4.21;
 
 import "./EIP20Interface.sol";
@@ -36,14 +35,6 @@ contract EIP20 is EIP20Interface {
         decimals = _decimalUnits;                            // Amount of decimals for display purposes
         symbol = _tokenSymbol;                               // Set the symbol for display purposes
     }
-
-    // function transfer(address _to, uint256 _value) public returns (bool success) {
-    //     require(balances[msg.sender] >= _value);
-    //     balances[msg.sender] = balances[msg.sender].sub(_value);
-    //     balances[_to] = balances[_to].add(_value);
-    //     emit Transfer(msg.sender, _to, _value); //solhint-disable-line indent, no-unused-vars
-    //     return true;
-    // }
 
     function transfer(address _to, uint _value) public returns (bool success) {
         uint codeLength;
