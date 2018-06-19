@@ -1,5 +1,9 @@
 pragma solidity ^0.4.23;
 
+interface Token {
+    function transfer(address _to, uint256 _value) public returns (bool success);
+}
+
 contract SidechainLib {
     mapping (uint256 => SidechainLib.Stage) public stages;
     mapping (bytes32 => SidechainLib.Log) public depositLogs;
@@ -92,7 +96,6 @@ contract SidechainLib {
         _parameter[19] = _rFromServer,
         _parameter[20] = _sFromServer,
 
-        // _parameter[21] = _dsn (deposit)
         */
         bytes32[] memory bytes32Array = new bytes32[](8);
         bytes32Array[0] = _parameter[1]; // from
@@ -223,13 +226,6 @@ contract SidechainLib {
         _parameter[1] = value
         */
         bytes32 dsn = bytes32(depositSequenceNumber);
-        if(assetAddress != address(0)) {
-            /*
-            transfer 0xa9059cbb
-            transferFrom 0x23b872dd
-            */
-            require(assetAddress.call(0x23b872dd, address(_parameter[0]), this, uint256(_parameter[1])));
-        }
         depositLogs[dsn].stage = bytes32(stageHeight + 1);
         depositLogs[dsn].client = _parameter[0];
         depositLogs[dsn].value = _parameter[1];
@@ -290,16 +286,13 @@ contract SidechainLib {
         require (uint256(withdrawalLogs[_parameter[0]].stage) < stageHeight);
         address client = address(withdrawalLogs[_parameter[0]].client);
         uint256 value = uint256(withdrawalLogs[_parameter[0]].value);
-        if(assetAddress != address(0)) {
-            /*
-            transfer 0xa9059cbb
-            transferFrom 0x23b872dd
-            */
-            require(assetAddress.call(0xa9059cbb, client, value));
+        address assetAddress = address(_parameter[3]);
+        if (assetAddresses[assetAddress] != false) {
+            Token(assetAddress).transfer(client, value);
         } else {
             client.transfer(value);
+            withdrawalLogs[_parameter[0]].flag = true;
         }
-        withdrawalLogs[_parameter[0]].flag = true;
         emit Withdraw (_parameter[0], bytes32(client), bytes32(value));
     }
 
@@ -313,18 +306,15 @@ contract SidechainLib {
         bytes32Array[0] = _parameter[1]; // from
         bytes32Array[1] = _parameter[6]; // nonce
         bytes32 wsn = hashArray(bytes32Array);
+
         require(withdrawalLogs[wsn].flag == false);
         withdrawalLogs[wsn].stage = bytes32(stageHeight+1);
         withdrawalLogs[wsn].client = _parameter[1];
         withdrawalLogs[wsn].value = _parameter[4];
         withdrawalLogs[wsn].flag = true;
 
-        if(assetAddress != address(0)) {
-            /*
-            transfer 0xa9059cbb
-            transferFrom 0x23b872dd
-            */
-            require(assetAddress.call(0xa9059cbb, address(_parameter[2]), uint256(_parameter[4])));
+        if (assetAddresses[address(_parameter[3])] != false) {
+            Token(address(_parameter[3])).transfer(address(_parameter[2]), uint256(_parameter[4]));
         } else {
             address(_parameter[1]).transfer(uint256(_parameter[4]));
         }
