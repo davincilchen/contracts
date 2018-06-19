@@ -4,11 +4,11 @@ contract SidechainLib {
     mapping (uint256 => SidechainLib.Stage) public stages;
     mapping (bytes32 => SidechainLib.Log) public depositLogs;
     mapping (bytes32 => SidechainLib.Log) public withdrawalLogs;
+    mapping (address => bool) public assetAddresses;
     uint256 public stageHeight;
     uint256 public instantWithdrawMaximum;
     uint256 public depositSequenceNumber;
     address public owner;
-    address public assetAddress;
 
     string constant version = "v1.3.0";
 
