@@ -73,9 +73,6 @@ contract Sidechain {
     }
 
     function () payable {
-        if(assetAddresses[msg.sender] == false) {
-            revert();
-        }
         /*
         called delegateToLib to 'proposeDeposit(bytes32[])'
         gas used : 127075
