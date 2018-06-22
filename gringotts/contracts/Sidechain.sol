@@ -1,11 +1,9 @@
 pragma solidity ^0.4.23;
 
-import "./SidechainLib.sol";
+import "./CryptoFlowLib.sol";
+import "./ChallengeLib.sol";
 
 contract Sidechain {
-    mapping (uint256 => SidechainLib.Stage) public stages;
-    mapping (bytes32 => SidechainLib.Log) public depositLogs;
-    mapping (bytes32 => SidechainLib.Log) public withdrawalLogs;
     mapping (address => bool) public assetAddresses;
     uint256 public stageHeight;
     uint256 public instantWithdrawMaximum;
@@ -13,7 +11,11 @@ contract Sidechain {
     address public owner;
 
     address public managerAddress;
-    address public sidechainLibAddress;
+    address public cryptoFlowLibAddress;
+    address public challengeLibAddress;
+    mapping (uint256 => ChallengedLib.Stage) public stages;
+    mapping (bytes32 => CryptoFlowLib.Log) public depositLogs;
+    mapping (bytes32 => CryptoFlowLib.Log) public withdrawalLogs;
 
     event ProposeDeposit (
         bytes32 indexed _dsn,
@@ -31,27 +33,34 @@ contract Sidechain {
         bytes32[3] _sigReceipt
     );
 
-    event Attach (
-        bytes32 _stageHeight,
-        bytes32 _receiptRootHash,
-        bytes32 _accountRootHash
-    );
-
     event Withdraw (
         bytes32 indexed _wsn,
         bytes32 _client,
         bytes32 _value
     );
 
+    event Attach (
+        bytes32 _stageHeight,
+        bytes32 _receiptRootHash,
+        bytes32 _accountRootHash
+    );
+
+    event Challenge (
+        bytes32 _client,
+        bytes32 _lightTxHash
+    );
+
     function Sidechain (
         address _sidechainOwner,
-        address _sidechainLibAddress,
+        address _cryptoFlowLibAddress,
+        address _challengeLibAddress,
         address[] _assetAddresses,
         uint256 _instantWithdrawMaximum
     ) {
         managerAddress = msg.sender;
         owner = _sidechainOwner;
-        sidechainLibAddress = _sidechainLibAddress;
+        cryptoFlowLibAddress = cryptoFlowLibAddress;
+        challengeLibAddress = _challengeLibAddress;
         instantWithdrawMaximum = _instantWithdrawMaximum;
         stages[stageHeight].data = "genisis stage";
         
@@ -60,16 +69,23 @@ contract Sidechain {
         }
     }
 
-    function delegateToLib (bytes4 _signature, bytes32[] _parameter) payable {
+    function delegateToCryptoFlow (bytes4 _signature, bytes32[] _parameter) payable {
         /*
-        'attach(bytes32[])':             0x95aa4aac
         'proposeDeposit(bytes32[])':     0xdcf12aba
         'deposit(bytes32[])':            0x7b9d7d74
         'proposeWithdrawal(bytes32[])':  0x68ff1929
         'withdraw(bytes32[])':           0xfe2b3924
         'instantWithdraw(bytes32[])':    0xbe1946da
         */
-        sidechainLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
+        cryptoFlowLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
+    }
+
+    function delegateToChallenge (bytes4 _signature, bytes32[] _parameter) payable {
+        /*
+        'challenge(bytes32[])':          0x31c915b4
+        'attach(bytes32[])':             0x95aa4aac
+        */
+        challengeLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }
 
     function () payable {
@@ -82,17 +98,17 @@ contract Sidechain {
         bytes32[] memory bytes32Array = new bytes32[](2);
         bytes32Array[0] = bytes32(msg.sender);
         bytes32Array[1] = bytes32(msg.value);
-        delegateToLib(0xdcf12aba, bytes32Array);
+        delegateToCryptoFlow(0xdcf12aba, bytes32Array);
     }
-    
+
     function setAssetAddress(address asAddress) {
         assetAddresses[asAddress] = true;
     }
-    
+
     function unsetAssetAddress(address asAddress) {
         delete assetAddresses[asAddress];
     }
-    
+
     function tokenFallback(address _from, uint _value) public returns (bool success) {
         if(assetAddresses[msg.sender] == false) {
             revert();
@@ -100,8 +116,24 @@ contract Sidechain {
             bytes32[] memory bytes32Array = new bytes32[](2);
             bytes32Array[0] = bytes32(_from);
             bytes32Array[1] = bytes32(_value);
-            delegateToLib(0xdcf12aba, bytes32Array);
+            delegateToCryptoFlow(0xdcf12aba, bytes32Array);
             return true;
         }
+    }
+
+    function getChallengedHash (bytes32[] _parameter) constant returns (bytes32) {
+        /*
+        parameter[0] = _stageHeight,
+        parameter[1] = _challengeNumber
+        */
+        return stages[uint256(_parameter[0])].challengedLightTxHashes[uint256(_parameter[1])];
+    }
+
+    function getChallengedInfo (bytes32[] _parameter) constant returns (address, bool, bool) {
+        /*
+        parameter[0] = _stageHeight,
+        parameter[1] = _lightTxHash
+        */
+        return (stages[uint256(_parameter[0])].challengedList[_parameter[1]].client, stages[uint256(_parameter[0])].challengedList[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedList[_parameter[1]].getCompensation);
     }
 }

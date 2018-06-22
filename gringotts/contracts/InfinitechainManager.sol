@@ -4,7 +4,8 @@ import "./Sidechain.sol";
 
 contract InfinitechainManager {
 	address public owner;
-	address public sidechainLibAddress;
+	address public cryptoFlowLibAddress;
+	address public challengeLibAddress;
 	uint256 public sidechainNumber;
 	mapping (uint256 => address) public sidechainAddress;
 	// id = 0, for ledger use
@@ -16,9 +17,10 @@ contract InfinitechainManager {
         _;
     }
 
-	function InfinitechainManager(address _sidechainLibAddress) {
+	function InfinitechainManager(address _cryptoFlowLibAddress, address _challengeLibAddress) {
 		owner = msg.sender;
-		sidechainLibAddress = _sidechainLibAddress;
+		cryptoFlowLibAddress = _cryptoFlowLibAddress;
+		challengeLibAddress = _challengeLibAddress;
 	}
 
 	function deploySidechain(
@@ -28,12 +30,16 @@ contract InfinitechainManager {
 	) 
 		onlyOwner 
 	{
-		address newSidechain = new Sidechain(_sidechainOwner, sidechainLibAddress, _assetAddresses, _instantWithdrawMaximum);
+		address newSidechain = new Sidechain(_sidechainOwner, cryptoFlowLibAddress, challengeLibAddress, _assetAddresses, _instantWithdrawMaximum);
 		sidechainAddress[sidechainNumber++] = newSidechain;
 		DeploySidechain(sidechainNumber, newSidechain);
 	}
 
-	function setSidechainLibAddress(address _sidechainLibAddress) onlyOwner {
-		sidechainLibAddress = _sidechainLibAddress;
+	function setCryptoFlowLibAddress(address _cryptoFlowLibAddress) onlyOwner {
+		cryptoFlowLibAddress = _cryptoFlowLibAddress;
+	}
+
+	function setChallengeLibAddress(address _challengeLibAddress) onlyOwner {
+		challengeLibAddress = _challengeLibAddress;
 	}
 }
