@@ -2,7 +2,7 @@ pragma solidity ^0.4.23;
 
 import "./Util.sol";
 
-interface Token {
+contract Token {
     function transfer(address _to, uint256 _value) public returns (bool success);
 }
 

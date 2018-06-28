@@ -13,9 +13,9 @@ contract ChallengedLib {
     address public utilAddress;
     string constant version = "v1.3.0";
 
-	struct Stage {
-		bytes32 receiptRootHash;
-		bytes32 accountRootHash;
+    struct Stage {
+        bytes32 receiptRootHash;
+        bytes32 accountRootHash;
 		bytes32 data;
 	    mapping (bytes32 => ChallengedLib.ChallengedInfo) challengedList;
         bytes32[] challengedLightTxHashes;	

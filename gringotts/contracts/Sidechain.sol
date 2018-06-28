@@ -1,7 +1,7 @@
 pragma solidity ^0.4.23;
 
 import "./CryptoFlowLib.sol";
-import "./ChallengeLib.sol";
+import "./ChallengedLib.sol";
 
 contract Sidechain {
     mapping (address => bool) public assetAddresses;
