@@ -12,7 +12,7 @@ contract Sidechain {
 
     address public managerAddress;
     address public cryptoFlowLibAddress;
-    address public challengeLibAddress;
+    address public challengedLibAddress;
     mapping (uint256 => ChallengedLib.Stage) public stages;
     mapping (bytes32 => CryptoFlowLib.Log) public depositLogs;
     mapping (bytes32 => CryptoFlowLib.Log) public withdrawalLogs;
@@ -53,14 +53,14 @@ contract Sidechain {
     function Sidechain (
         address _sidechainOwner,
         address _cryptoFlowLibAddress,
-        address _challengeLibAddress,
+        address _challengedLibAddress,
         address[] _assetAddresses,
         uint256 _instantWithdrawMaximum
     ) {
         managerAddress = msg.sender;
         owner = _sidechainOwner;
-        cryptoFlowLibAddress = cryptoFlowLibAddress;
-        challengeLibAddress = _challengeLibAddress;
+        cryptoFlowLibAddress = _cryptoFlowLibAddress;
+        challengedLibAddress = _challengedLibAddress;
         instantWithdrawMaximum = _instantWithdrawMaximum;
         stages[stageHeight].data = "genisis stage";
         
@@ -77,15 +77,20 @@ contract Sidechain {
         'withdraw(bytes32[])':           0xfe2b3924
         'instantWithdraw(bytes32[])':    0xbe1946da
         */
-        cryptoFlowLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
+        cryptoFlowLibAddress.delegatecall( _signature, _parameter);
     }
 
-    function delegateToChallenge (bytes4 _signature, bytes32[] _parameter) payable {
+    function delegateToChallenge (bytes4 _signature, bytes32[] _parameter) public {
         /*
         'challenge(bytes32[])':          0x31c915b4
         'attach(bytes32[])':             0x95aa4aac
         */
-        challengeLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
+        
+        challengedLibAddress.delegatecall( _signature, _parameter);
+    }
+    
+    function challenge (bytes32[] _parameter) public {
+        ChallengedLib(challengedLibAddress).challenge(_parameter);
     }
 
     function () payable {

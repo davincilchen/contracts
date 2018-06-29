@@ -12,7 +12,7 @@ contract ChallengedLib {
     mapping (uint256 => ChallengedLib.Stage) public stages;
     address public utilAddress;
     string constant version = "v1.3.0";
-
+    
     struct Stage {
         bytes32 receiptRootHash;
         bytes32 accountRootHash;
@@ -47,7 +47,7 @@ contract ChallengedLib {
         _;
     }
     
-    function attach (bytes32[] _parameter) {
+    function attach (bytes32[] _parameter) public {
         /*
         _parameter[0] = _receiptRootHash
         _parameter[1] = _accountRootHash
@@ -60,7 +60,7 @@ contract ChallengedLib {
         emit Attach (bytes32(stageHeight), _parameter[0], _parameter[1]);
     }
     
-    function challenge (bytes32[] _parameter) {
+    function challenge (bytes32[] _parameter) public {
         /*
         parameter[0] = _stageHeight,
         parameter[1] = _lightTxHash,
