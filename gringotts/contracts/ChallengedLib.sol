@@ -1,5 +1,7 @@
 pragma solidity ^0.4.23;
 
+import "./CryptoFlowLib.sol";
+import "./ChallengedLib.sol";
 import "./Util.sol";
 
 contract ChallengedLib {
@@ -9,8 +11,13 @@ contract ChallengedLib {
     uint256 public depositSequenceNumber;
     address public owner;
     
-    mapping (uint256 => ChallengedLib.Stage) public stages;
     address public utilAddress;
+    address public managerAddress;
+    address public cryptoFlowLibAddress;
+    address public challengedLibAddress;
+    mapping (uint256 => ChallengedLib.Stage) public stages;
+    mapping (bytes32 => CryptoFlowLib.Log) public depositLogs;
+    mapping (bytes32 => CryptoFlowLib.Log) public withdrawalLogs;
     string constant version = "v1.3.0";
     
     struct Stage {
