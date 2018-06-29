@@ -2,6 +2,7 @@ pragma solidity ^0.4.23;
 
 import "./CryptoFlowLib.sol";
 import "./ChallengedLib.sol";
+import "./Util.sol";
 
 contract Sidechain {
     mapping (address => bool) public assetAddresses;
@@ -10,6 +11,7 @@ contract Sidechain {
     uint256 public depositSequenceNumber;
     address public owner;
 
+    address public utilAddress;
     address public managerAddress;
     address public cryptoFlowLibAddress;
     address public challengedLibAddress;
@@ -52,6 +54,7 @@ contract Sidechain {
 
     function Sidechain (
         address _sidechainOwner,
+        address _utilAddress,
         address _cryptoFlowLibAddress,
         address _challengedLibAddress,
         address[] _assetAddresses,
@@ -59,6 +62,7 @@ contract Sidechain {
     ) {
         managerAddress = msg.sender;
         owner = _sidechainOwner;
+        utilAddress = _utilAddress;
         cryptoFlowLibAddress = _cryptoFlowLibAddress;
         challengedLibAddress = _challengedLibAddress;
         instantWithdrawMaximum = _instantWithdrawMaximum;
@@ -77,7 +81,7 @@ contract Sidechain {
         'withdraw(bytes32[])':           0xfe2b3924
         'instantWithdraw(bytes32[])':    0xbe1946da
         */
-        cryptoFlowLibAddress.delegatecall( _signature, _parameter);
+        cryptoFlowLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }
 
     function delegateToChallenge (bytes4 _signature, bytes32[] _parameter) public {
@@ -86,11 +90,7 @@ contract Sidechain {
         'attach(bytes32[])':             0x95aa4aac
         */
         
-        challengedLibAddress.delegatecall( _signature, _parameter);
-    }
-    
-    function challenge (bytes32[] _parameter) public {
-        ChallengedLib(challengedLibAddress).challenge(_parameter);
+        challengedLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }
 
     function () payable {

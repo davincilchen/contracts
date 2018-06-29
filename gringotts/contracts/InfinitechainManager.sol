@@ -1,9 +1,11 @@
 pragma solidity ^0.4.23;
 
 import "./Sidechain.sol";
+import "./Util.sol";
 
 contract InfinitechainManager {
 	address public owner;
+	address public utilAddress;
 	address public cryptoFlowLibAddress;
 	address public challengeLibAddress;
 	uint256 public sidechainNumber;
@@ -17,8 +19,9 @@ contract InfinitechainManager {
         _;
     }
 
-	function InfinitechainManager(address _cryptoFlowLibAddress, address _challengeLibAddress) {
+	function InfinitechainManager(address _utilAddress, address _cryptoFlowLibAddress, address _challengeLibAddress) {
 		owner = msg.sender;
+		utilAddress = _utilAddress;
 		cryptoFlowLibAddress = _cryptoFlowLibAddress;
 		challengeLibAddress = _challengeLibAddress;
 	}
@@ -30,7 +33,7 @@ contract InfinitechainManager {
 	) 
 		onlyOwner 
 	{
-		address newSidechain = new Sidechain(_sidechainOwner, cryptoFlowLibAddress, challengeLibAddress, _assetAddresses, _instantWithdrawMaximum);
+		address newSidechain = new Sidechain(_sidechainOwner, utilAddress, cryptoFlowLibAddress, challengeLibAddress, _assetAddresses, _instantWithdrawMaximum);
 		sidechainAddress[sidechainNumber++] = newSidechain;
 		DeploySidechain(sidechainNumber, newSidechain);
 	}

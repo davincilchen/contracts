@@ -47,9 +47,9 @@ contract CryptoFlowLib {
         bytes32 _value
     );
     
-    function CryptoFlowLib (address _utilAddress) {
-        utilAddress = _utilAddress;
-    }
+    // function CryptoFlowLib (address _utilAddress) {
+    //     utilAddress = _utilAddress;
+    // }
 
     modifier onlyOwner {
         require(msg.sender == owner);

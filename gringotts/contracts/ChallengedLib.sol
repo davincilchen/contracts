@@ -38,9 +38,9 @@ contract ChallengedLib {
         bytes32 _lightTxHash
     );
     
-    function ChallengedLib (address _utilAddress) {
-        utilAddress = _utilAddress;
-    }
+    // function ChallengedLib (address _utilAddress) {
+    //     utilAddress = _utilAddress;
+    // }
 
     modifier onlyOwner {
         require(msg.sender == owner);
