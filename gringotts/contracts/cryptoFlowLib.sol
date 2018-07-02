@@ -1,5 +1,7 @@
 pragma solidity ^0.4.23;
 
+import "./CryptoFlowLib.sol";
+import "./ChallengedLib.sol";
 import "./Util.sol";
 
 contract Token {
@@ -12,12 +14,15 @@ contract CryptoFlowLib {
     uint256 public instantWithdrawMaximum;
     uint256 public depositSequenceNumber;
     address public owner;
-
+    
+    address public utilAddress;
+    address public managerAddress;
+    address public cryptoFlowLibAddress;
+    address public challengedLibAddress;
+    mapping (uint256 => ChallengedLib.Stage) public stages;
     mapping (bytes32 => CryptoFlowLib.Log) public depositLogs;
     mapping (bytes32 => CryptoFlowLib.Log) public withdrawalLogs;
-    address public utilAddress;
-    string constant version = "v1.3.0";
-    
+
     struct Log {
         bytes32 stage;
         bytes32 client;
@@ -32,7 +37,7 @@ contract CryptoFlowLib {
     );
 
     event VerifyReceipt (
-        uint256 indexed _type, // { 0: deposit, 1: proposeWithdrawal, 2: instantWithdrawal}
+        uint256 indexed _type, // { 0: deposit, 1: proposeWithdrawal, 2: instantWithdrawal }
         bytes32 _gsn,
         bytes32 _lightTxHash,
         bytes32 _fromBalance,
@@ -46,10 +51,6 @@ contract CryptoFlowLib {
         bytes32 _client,
         bytes32 _value
     );
-    
-    // function CryptoFlowLib (address _utilAddress) {
-    //     utilAddress = _utilAddress;
-    // }
 
     modifier onlyOwner {
         require(msg.sender == owner);

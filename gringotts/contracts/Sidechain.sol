@@ -48,6 +48,7 @@ contract Sidechain {
     );
 
     event Challenge (
+        uint256 indexed _challengedType, // { type: 1 - 5 }
         bytes32 _client,
         bytes32 _lightTxHash
     );
@@ -73,7 +74,7 @@ contract Sidechain {
         }
     }
 
-    function delegateToCryptoFlow (bytes4 _signature, bytes32[] _parameter) payable {
+    function delegateToCryptoFlowLib (bytes4 _signature, bytes32[] _parameter) payable {
         /*
         'proposeDeposit(bytes32[])':     0xdcf12aba
         'deposit(bytes32[])':            0x7b9d7d74
@@ -84,10 +85,14 @@ contract Sidechain {
         cryptoFlowLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }
 
-    function delegateToChallenge (bytes4 _signature, bytes32[] _parameter) public {
+    function delegateToChallengedLib (bytes4 _signature, bytes32[] _parameter) public {
         /*
-        'challenge(bytes32[])':          0x31c915b4
-        'attach(bytes32[])':             0x95aa4aac
+        'attach(bytes32[])':                                0x95aa4aac
+        'challengeDoubleGSN(bytes32[])':                    0x3aed35af
+        'challengeWrongBalanceLargerThanBond(bytes32[])':   0x15c2d815
+        'challengeWrongBalanceLessThanBond(bytes32[])':     0xc4736f52
+        'challengeSkippedGSN(bytes32[])':                   0x808264eb
+        'challengeIntegrity(bytes32[])':                    0x3b056707
         */
         
         challengedLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
@@ -103,7 +108,7 @@ contract Sidechain {
         bytes32[] memory bytes32Array = new bytes32[](2);
         bytes32Array[0] = bytes32(msg.sender);
         bytes32Array[1] = bytes32(msg.value);
-        delegateToCryptoFlow(0xdcf12aba, bytes32Array);
+        delegateToCryptoFlowLib(0xdcf12aba, bytes32Array);
     }
 
     function setAssetAddress(address asAddress) {
@@ -121,7 +126,7 @@ contract Sidechain {
             bytes32[] memory bytes32Array = new bytes32[](2);
             bytes32Array[0] = bytes32(_from);
             bytes32Array[1] = bytes32(_value);
-            delegateToCryptoFlow(0xdcf12aba, bytes32Array);
+            delegateToCryptoFlowLib(0xdcf12aba, bytes32Array);
             return true;
         }
     }
@@ -134,11 +139,43 @@ contract Sidechain {
         return stages[uint256(_parameter[0])].challengedLightTxHashes[uint256(_parameter[1])];
     }
 
-    function getChallengedInfo (bytes32[] _parameter) constant returns (address, bool, bool) {
+    function getChallengedType1ListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
         /*
         parameter[0] = _stageHeight,
         parameter[1] = _lightTxHash
         */
-        return (stages[uint256(_parameter[0])].challengedList[_parameter[1]].client, stages[uint256(_parameter[0])].challengedList[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedList[_parameter[1]].getCompensation);
+        return (stages[uint256(_parameter[0])].challengedType1List[_parameter[1]].client, stages[uint256(_parameter[0])].challengedType1List[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedType1List[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedType1List[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedType1List[_parameter[1]].getCompensation);
+    }
+
+    function getChallengedType2ListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
+        /*
+        parameter[0] = _stageHeight,
+        parameter[1] = _lightTxHash
+        */
+        return (stages[uint256(_parameter[0])].challengedType2List[_parameter[1]].client, stages[uint256(_parameter[0])].challengedType2List[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedType2List[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedType2List[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedType2List[_parameter[1]].getCompensation);
+    }
+
+    function getChallengedType3ListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
+        /*
+        parameter[0] = _stageHeight,
+        parameter[1] = _lightTxHash
+        */
+        return (stages[uint256(_parameter[0])].challengedType3List[_parameter[1]].client, stages[uint256(_parameter[0])].challengedType3List[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedType3List[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedType3List[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedType3List[_parameter[1]].getCompensation);
+    }
+
+    function getChallengedType4ListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
+        /*
+        parameter[0] = _stageHeight,
+        parameter[1] = _lightTxHash
+        */
+        return (stages[uint256(_parameter[0])].challengedType4List[_parameter[1]].client, stages[uint256(_parameter[0])].challengedType4List[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedType4List[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedType4List[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedType4List[_parameter[1]].getCompensation);
+    }
+
+    function getChallengedType5ListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
+        /*
+        parameter[0] = _stageHeight,
+        parameter[1] = _lightTxHash
+        */
+        return (stages[uint256(_parameter[0])].challengedType5List[_parameter[1]].client, stages[uint256(_parameter[0])].challengedType5List[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedType5List[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedType5List[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedType5List[_parameter[1]].getCompensation);
     }
 }
