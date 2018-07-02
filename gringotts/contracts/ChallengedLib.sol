@@ -160,7 +160,6 @@ contract ChallengedLib {
         _parameter[42] = _rFromServer
         _parameter[43] = _sFromServer
         */
-        bytes32[] memory bytes32Array = new bytes32[](8);
         bytes32Array[0] = _parameter[23]; // from
         bytes32Array[1] = _parameter[24]; // to
         bytes32Array[2] = _parameter[25]; // assetID
@@ -169,9 +168,9 @@ contract ChallengedLib {
         bytes32Array[5] = _parameter[28]; // nonce
         bytes32Array[6] = _parameter[29]; // logID
         bytes32Array[7] = _parameter[30]; // metadataHash
-        bytes32 hashMsg = Util(utilAddress).hashArray(bytes32Array);
+        hashMsg = Util(utilAddress).hashArray(bytes32Array);
         require(hashMsg == _parameter[22]);
-        address signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[31]), _parameter[32], _parameter[33]);
+        signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[31]), _parameter[32], _parameter[33]);
         if (address(0) == address(_parameter[23]) && address(0) != address(_parameter[24])) {
             // Deposit
             require(signer == address(_parameter[24]));
