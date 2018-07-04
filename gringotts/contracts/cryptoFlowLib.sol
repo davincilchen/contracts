@@ -2,6 +2,7 @@ pragma solidity ^0.4.23;
 
 import "./CryptoFlowLib.sol";
 import "./ChallengedLib.sol";
+import "./DefendLib.sol";
 import "./Util.sol";
 
 contract Token {
@@ -14,11 +15,12 @@ contract CryptoFlowLib {
     uint256 public instantWithdrawMaximum;
     uint256 public depositSequenceNumber;
     address public owner;
-    
+
     address public utilAddress;
     address public managerAddress;
     address public cryptoFlowLibAddress;
     address public challengedLibAddress;
+    address public defendLibAddress;
     mapping (uint256 => ChallengedLib.Stage) public stages;
     mapping (bytes32 => CryptoFlowLib.Log) public depositLogs;
     mapping (bytes32 => CryptoFlowLib.Log) public withdrawalLogs;

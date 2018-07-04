@@ -2,6 +2,7 @@ pragma solidity ^0.4.23;
 
 import "./CryptoFlowLib.sol";
 import "./ChallengedLib.sol";
+import "./DefendLib.sol";
 import "./Util.sol";
 
 contract Sidechain {
@@ -15,9 +16,11 @@ contract Sidechain {
     address public managerAddress;
     address public cryptoFlowLibAddress;
     address public challengedLibAddress;
+    address public defendLibAddress;
     mapping (uint256 => ChallengedLib.Stage) public stages;
     mapping (bytes32 => CryptoFlowLib.Log) public depositLogs;
     mapping (bytes32 => CryptoFlowLib.Log) public withdrawalLogs;
+    string constant version = "v1.3.0";
 
     event ProposeDeposit (
         bytes32 indexed _dsn,
@@ -48,9 +51,14 @@ contract Sidechain {
     );
 
     event Challenge (
-        uint256 indexed _challengedType, // { type: 1 - 5 }
+        uint256 indexed _challengedType, // { type: 1 - 4, 1: repeatedGSN 2: wrongBalance 3: skippedGSN 4: existProof }
         bytes32 _client,
         bytes32 _lightTxHash
+    );
+
+    event Defend (
+        bytes32 _lightTxHash,
+        bool _challengeState
     );
 
     function Sidechain (
@@ -58,6 +66,7 @@ contract Sidechain {
         address _utilAddress,
         address _cryptoFlowLibAddress,
         address _challengedLibAddress,
+        address _defendLibAddress,
         address[] _assetAddresses,
         uint256 _instantWithdrawMaximum
     ) {
@@ -66,6 +75,7 @@ contract Sidechain {
         utilAddress = _utilAddress;
         cryptoFlowLibAddress = _cryptoFlowLibAddress;
         challengedLibAddress = _challengedLibAddress;
+        defendLibAddress = _defendLibAddress;
         instantWithdrawMaximum = _instantWithdrawMaximum;
         stages[stageHeight].data = "genisis stage";
         
@@ -88,14 +98,23 @@ contract Sidechain {
     function delegateToChallengedLib (bytes4 _signature, bytes32[] _parameter) public {
         /*
         'attach(bytes32[])':                                0x95aa4aac
-        'challengeDoubleGSN(bytes32[])':                    0x3aed35af
-        'challengeWrongBalanceLargerThanBond(bytes32[])':   0x15c2d815
-        'challengeWrongBalanceLessThanBond(bytes32[])':     0xc4736f52
-        'challengeSkippedGSN(bytes32[])':                   0x808264eb
-        'challengeIntegrity(bytes32[])':                    0x3b056707
+        'challengedRepeatedGSN(bytes32[])':                 0xb210ffbf
+        'challengedWrongBalance(bytes32[])':                0x4259ee16
+        'challengedSkippedGSN(bytes32[])':                  0x6f62a2d9
+        'challengedExistedProof(bytes32[])':                0xbfe6f0e2
         */
-        
+
         challengedLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
+    }
+
+    function delegateToDefendLib (bytes4 _signature, bytes32[] _parameter) public {
+        /*
+        'defendWrongBalance(bytes32[])':                    0x0a4c725b
+        'defendSkippedGSN(bytes32[])':                      0xdc64db7c
+        'defendExistedProof(bytes32[])':                    0x07a18cbd
+        */
+
+        defendLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }
 
     function () payable {
@@ -139,43 +158,35 @@ contract Sidechain {
         return stages[uint256(_parameter[0])].challengedLightTxHashes[uint256(_parameter[1])];
     }
 
-    function getChallengedType1ListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
+    function getChallengedRepeatedGSNListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
         /*
         parameter[0] = _stageHeight,
         parameter[1] = _lightTxHash
         */
-        return (stages[uint256(_parameter[0])].challengedType1List[_parameter[1]].client, stages[uint256(_parameter[0])].challengedType1List[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedType1List[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedType1List[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedType1List[_parameter[1]].getCompensation);
+        return (stages[uint256(_parameter[0])].challengedRepeatedGSNList[_parameter[1]].client, stages[uint256(_parameter[0])].challengedRepeatedGSNList[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedRepeatedGSNList[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedRepeatedGSNList[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedRepeatedGSNList[_parameter[1]].getCompensation);
     }
 
-    function getChallengedType2ListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
+    function getChallengedWrongBalanceListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
         /*
         parameter[0] = _stageHeight,
         parameter[1] = _lightTxHash
         */
-        return (stages[uint256(_parameter[0])].challengedType2List[_parameter[1]].client, stages[uint256(_parameter[0])].challengedType2List[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedType2List[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedType2List[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedType2List[_parameter[1]].getCompensation);
+        return (stages[uint256(_parameter[0])].challengedWrongBalanceList[_parameter[1]].client, stages[uint256(_parameter[0])].challengedWrongBalanceList[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedWrongBalanceList[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedWrongBalanceList[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedWrongBalanceList[_parameter[1]].getCompensation);
     }
 
-    function getChallengedType3ListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
+    function getChallengedSkippedGSNListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
         /*
         parameter[0] = _stageHeight,
         parameter[1] = _lightTxHash
         */
-        return (stages[uint256(_parameter[0])].challengedType3List[_parameter[1]].client, stages[uint256(_parameter[0])].challengedType3List[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedType3List[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedType3List[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedType3List[_parameter[1]].getCompensation);
+        return (stages[uint256(_parameter[0])].challengedSkippedGSNList[_parameter[1]].client, stages[uint256(_parameter[0])].challengedSkippedGSNList[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedSkippedGSNList[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedSkippedGSNList[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedSkippedGSNList[_parameter[1]].getCompensation);
     }
 
-    function getChallengedType4ListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
+    function getChallengedExistedProofListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
         /*
         parameter[0] = _stageHeight,
         parameter[1] = _lightTxHash
         */
-        return (stages[uint256(_parameter[0])].challengedType4List[_parameter[1]].client, stages[uint256(_parameter[0])].challengedType4List[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedType4List[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedType4List[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedType4List[_parameter[1]].getCompensation);
-    }
-
-    function getChallengedType5ListInfo (bytes32[] _parameter) constant returns (address, bytes32, bytes32, bool, bool) {
-        /*
-        parameter[0] = _stageHeight,
-        parameter[1] = _lightTxHash
-        */
-        return (stages[uint256(_parameter[0])].challengedType5List[_parameter[1]].client, stages[uint256(_parameter[0])].challengedType5List[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedType5List[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedType5List[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedType5List[_parameter[1]].getCompensation);
+        return (stages[uint256(_parameter[0])].challengedExistedProofList[_parameter[1]].client, stages[uint256(_parameter[0])].challengedExistedProofList[_parameter[1]].lightTxHashes[0], stages[uint256(_parameter[0])].challengedExistedProofList[_parameter[1]].lightTxHashes[1], stages[uint256(_parameter[0])].challengedExistedProofList[_parameter[1]].challengedState, stages[uint256(_parameter[0])].challengedExistedProofList[_parameter[1]].getCompensation);
     }
 }

@@ -8,6 +8,7 @@ contract InfinitechainManager {
 	address public utilAddress;
 	address public cryptoFlowLibAddress;
 	address public challengeLibAddress;
+	address public defendLibAddress;
 	uint256 public sidechainNumber;
 	mapping (uint256 => address) public sidechainAddress;
 	// id = 0, for ledger use
@@ -19,11 +20,12 @@ contract InfinitechainManager {
         _;
     }
 
-	function InfinitechainManager(address _utilAddress, address _cryptoFlowLibAddress, address _challengeLibAddress) {
+	function InfinitechainManager(address _utilAddress, address _cryptoFlowLibAddress, address _challengeLibAddress, address _defendLibAddress) {
 		owner = msg.sender;
 		utilAddress = _utilAddress;
 		cryptoFlowLibAddress = _cryptoFlowLibAddress;
 		challengeLibAddress = _challengeLibAddress;
+		defendLibAddress = _defendLibAddress;
 	}
 
 	function deploySidechain(
@@ -33,7 +35,7 @@ contract InfinitechainManager {
 	) 
 		onlyOwner 
 	{
-		address newSidechain = new Sidechain(_sidechainOwner, utilAddress, cryptoFlowLibAddress, challengeLibAddress, _assetAddresses, _instantWithdrawMaximum);
+		address newSidechain = new Sidechain(_sidechainOwner, utilAddress, cryptoFlowLibAddress, challengeLibAddress, defendLibAddress, _assetAddresses, _instantWithdrawMaximum);
 		sidechainAddress[sidechainNumber++] = newSidechain;
 		DeploySidechain(sidechainNumber, newSidechain);
 	}
@@ -44,5 +46,9 @@ contract InfinitechainManager {
 
 	function setChallengeLibAddress(address _challengeLibAddress) onlyOwner {
 		challengeLibAddress = _challengeLibAddress;
+	}
+
+	function setDefendLibAddress(address _defendLibAddress) onlyOwner {
+		defendLibAddress = _defendLibAddress;
 	}
 }

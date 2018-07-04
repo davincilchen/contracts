@@ -5,7 +5,7 @@ import "./ChallengedLib.sol";
 import "./DefendLib.sol";
 import "./Util.sol";
 
-contract ChallengedLib {
+contract DefendLib {
     mapping (address => bool) public assetAddresses;
     uint256 public stageHeight;
     uint256 public instantWithdrawMaximum;
@@ -21,34 +21,9 @@ contract ChallengedLib {
     mapping (bytes32 => CryptoFlowLib.Log) public depositLogs;
     mapping (bytes32 => CryptoFlowLib.Log) public withdrawalLogs;
 
-    struct Stage {
-        bytes32 receiptRootHash;
-        bytes32 accountRootHash;
-		bytes32 data;
-	    mapping (bytes32 => ChallengedLib.ChallengedInfo) challengedRepeatedGSNList;// repeated gsn
-        mapping (bytes32 => ChallengedLib.ChallengedInfo) challengedWrongBalanceList;// wrong balance
-        mapping (bytes32 => ChallengedLib.ChallengedInfo) challengedSkippedGSNList;// skipped gsn
-        mapping (bytes32 => ChallengedLib.ChallengedInfo) challengedExistedProofList;// exitsProof
-        bytes32[] challengedLightTxHashes;	
-	}
-
-    struct ChallengedInfo {
-        address client;
-        bytes32[2] lightTxHashes;
-        bool challengedState;
-        bool getCompensation;
-    }
-
-    event Attach (
-        bytes32 _stageHeight,
-        bytes32 _receiptRootHash,
-        bytes32 _accountRootHash
-    );
-
-    event Challenge (
-        uint256 indexed _challengedType, // { type: 1 - 4, 1: repeatedGSN 2: wrongBalance 3: skippedGSN 4: existProof }
-        bytes32 _client,
-        bytes32 _lightTxHash
+    event Defend (
+        bytes32 _lightTxHash,
+        bool _challengeState
     );
 
     modifier onlyOwner {
@@ -174,69 +149,38 @@ contract ChallengedLib {
         require (signer == owner);
         _;
     }
-    
-    function attach (bytes32[] _parameter) public onlyOwner {
-        /*
-        _parameter[0] = _receiptRootHash
-        _parameter[1] = _accountRootHash
-        _parameter[2] = _data
-        */
-        stageHeight++;
-        stages[stageHeight].receiptRootHash = _parameter[0];
-        stages[stageHeight].accountRootHash = _parameter[1];
-        stages[stageHeight].data = _parameter[2];
-        emit Attach (bytes32(stageHeight), _parameter[0], _parameter[1]);
-    }
-    
-    function challengedRepeatedGSN (bytes32[] _parameter) isSigValid (_parameter) public {
-        require (_parameter.length == 44);
-        require (uint256(_parameter[13]) == uint256(_parameter[35]));// compare gsn
-        stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[22]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[22]], true, false);
-        stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[22]);
-        emit Challenge (1, bytes32(msg.sender), _parameter[22]);
-    }
 
-    function challengedWrongBalance (bytes32[] _parameter) isSigValid (_parameter) public {
+    function defendWrongBalance (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
         require (_parameter.length == 44);
         if (address(_parameter[23]) == address(_parameter[1])) {
-            if ((uint256(_parameter[36]) + uint256(_parameter[26])) != uint256(_parameter[14])) {
-                stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[22]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[22]], true, false);
-                stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[22]);
-                emit Challenge (2, bytes32(msg.sender), _parameter[22]);
-            }
+            require( (uint256(_parameter[36]) + uint256(_parameter[26])) == uint256(_parameter[14]));
+            stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[22]].challengedState = false;
+            emit Defend(_parameter[22], true);
         } else if (address(_parameter[23]) == address(_parameter[2])) {
-            if ((uint256(_parameter[36]) + uint256(_parameter[26])) != uint256(_parameter[15])) {
-                stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[22]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[22]], true, false);
-                stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[22]);
-                emit Challenge (2, bytes32(msg.sender), _parameter[22]);
-            }
+            require((uint256(_parameter[36]) + uint256(_parameter[26])) == uint256(_parameter[15]));
+            stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[22]].challengedState = false;
+            emit Defend(_parameter[22], true);
         } else if (address(_parameter[24]) == address(_parameter[1])) {
-            if ((uint256(_parameter[36]) - uint256(_parameter[26])) != uint256(_parameter[14])) {
-                stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[22]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[22]], true, false);
-                stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[22]);
-                emit Challenge (2, bytes32(msg.sender), _parameter[22]);
-            }
+            require((uint256(_parameter[36]) - uint256(_parameter[26])) == uint256(_parameter[14]));
+            stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[22]].challengedState = false;
+            emit Defend(_parameter[22], true);
         } else if (address(_parameter[24]) == address(_parameter[2])) {
-            if ((uint256(_parameter[36]) - uint256(_parameter[26])) != uint256(_parameter[15])) {
-                stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[22]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[22]], true, false);
-                stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[22]);
-                emit Challenge (2, bytes32(msg.sender), _parameter[22]);
-            }
+            require((uint256(_parameter[36]) - uint256(_parameter[26])) == uint256(_parameter[15]));
+            stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[22]].challengedState = false;
+            emit Defend(_parameter[22], true);
         }
     }
 
-    function challengedSkippedGSN (bytes32[] _parameter) isSigValid (_parameter) public {
+    function defendSkippedGSN (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
         require (_parameter.length == 44);
-        require (uint256(_parameter[35]) - uint256(_parameter[13]) != 1);
-        stages[uint256(_parameter[12])].challengedSkippedGSNList[_parameter[22]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[22]], true, false);
-        stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[22]);
-        emit Challenge (3, bytes32(msg.sender), _parameter[22]);
+        require (uint256(_parameter[35]) - uint256(_parameter[13]) == 1);
+        stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[22]].challengedState = false;
+        emit Defend(_parameter[22], true);
     }
 
-    function challengedExistedProof (bytes32[] _parameter) public {
-        require (_parameter.length == 22);
-        stages[uint256(_parameter[12])].challengedExistedProofList[_parameter[0]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], 0x0], true, false);
-        stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[0]);
-        emit Challenge (4, bytes32(msg.sender), _parameter[0]);
+    function defendExistedProof (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
+        // require (_parameter.length == 22);
+        // stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[0]].challengedState = false;
+        emit Defend(_parameter[0], true);
     }
 }
