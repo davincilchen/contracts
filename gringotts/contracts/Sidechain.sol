@@ -17,7 +17,7 @@ contract Sidechain {
 
     event ProposeDeposit (
         bytes32 indexed _dsn,
-        bytes32 _client,
+        bytes32 indexed _client,
         bytes32 _value,
         bytes32 _assetID
     );
@@ -40,7 +40,7 @@ contract Sidechain {
 
     event Withdraw (
         bytes32 indexed _wsn,
-        bytes32 _client,
+        bytes32 indexed _client,
         bytes32 _value,
         bytes32 _assetID
     );
