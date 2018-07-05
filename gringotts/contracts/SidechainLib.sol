@@ -26,13 +26,15 @@ contract SidechainLib {
         bytes32 stage;
         bytes32 client;
         bytes32 value;
+        bytes32 assetID;
         bool flag;
     }
 
     event ProposeDeposit (
         bytes32 indexed _dsn,
         bytes32 _client,
-        bytes32 _value
+        bytes32 _value,
+        bytes32 _assetID
     );
 
     event VerifyReceipt (
@@ -54,7 +56,8 @@ contract SidechainLib {
     event Withdraw (
         bytes32 indexed _wsn,
         bytes32 _client,
-        bytes32 _value
+        bytes32 _value,
+        bytes32 _assetID
     );
 
     modifier onlyOwner {
@@ -224,14 +227,16 @@ contract SidechainLib {
         /*
         _parameter[0] = client
         _parameter[1] = value
+        _parameter[2] = assetID
         */
         bytes32 dsn = bytes32(depositSequenceNumber);
         depositLogs[dsn].stage = bytes32(stageHeight + 1);
         depositLogs[dsn].client = _parameter[0];
         depositLogs[dsn].value = _parameter[1];
+        depositLogs[dsn].assetID = _parameter[2];
         depositSequenceNumber++;
 
-        emit ProposeDeposit (dsn, _parameter[0], _parameter[1]);
+        emit ProposeDeposit (dsn, _parameter[0], _parameter[1], _parameter[2]);
     }
 
     function deposit (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
@@ -286,6 +291,7 @@ contract SidechainLib {
         require (uint256(withdrawalLogs[_parameter[0]].stage) < stageHeight);
         address client = address(withdrawalLogs[_parameter[0]].client);
         uint256 value = uint256(withdrawalLogs[_parameter[0]].value);
+        bytes32 assetID = bytes32(withdrawalLogs[_parameter[0]].assetID);
         address assetAddress = address(_parameter[3]);
         if (assetAddresses[assetAddress] != false) {
             Token(assetAddress).transfer(client, value);
@@ -293,7 +299,7 @@ contract SidechainLib {
             client.transfer(value);
             withdrawalLogs[_parameter[0]].flag = true;
         }
-        emit Withdraw (_parameter[0], bytes32(client), bytes32(value));
+        emit Withdraw (_parameter[0], bytes32(client), bytes32(value), assetID);
     }
 
     function instantWithdraw (bytes32[] _parameter) isSigValid (_parameter) public {
