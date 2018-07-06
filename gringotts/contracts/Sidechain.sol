@@ -20,7 +20,6 @@ contract Sidechain {
     mapping (uint256 => ChallengedLib.Stage) public stages;
     mapping (bytes32 => CryptoFlowLib.Log) public depositLogs;
     mapping (bytes32 => CryptoFlowLib.Log) public withdrawalLogs;
-    string constant version = "v1.3.0";
 
     event ProposeDeposit (
         bytes32 indexed _dsn,
@@ -103,17 +102,15 @@ contract Sidechain {
         'challengedSkippedGSN(bytes32[])':                  0x6f62a2d9
         'challengedExistedProof(bytes32[])':                0xbfe6f0e2
         */
-
         challengedLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }
 
     function delegateToDefendLib (bytes4 _signature, bytes32[] _parameter) public {
         /*
-        'defendWrongBalance(bytes32[])':                    0x0a4c725b
-        'defendSkippedGSN(bytes32[])':                      0xdc64db7c
-        'defendExistedProof(bytes32[])':                    0x07a18cbd
+        'defendWrongBalances(bytes32[])':                    0xa2e630a5
+        'defendSkippedGSN(bytes32[])':                       0xdc64db7c
+        'defendExistProof(bytes32[])':                       0xe1e59fb4
         */
-
         defendLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
     }
 

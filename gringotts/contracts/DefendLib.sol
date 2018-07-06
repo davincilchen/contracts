@@ -78,7 +78,7 @@ contract DefendLib {
         bytes32Array[6] = _parameter[7]; // logID
         bytes32Array[7] = _parameter[8]; // metadataHash
         bytes32 hashMsg = Util(utilAddress).hashArray(bytes32Array);
-        require(hashMsg == _parameter[0]);
+        // require(hashMsg == _parameter[0]);
         address signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[9]), _parameter[10], _parameter[11]);
         bytes32Array = new bytes32[](5);
         bytes32Array[0] = _parameter[12]; // stageHeight
@@ -88,7 +88,7 @@ contract DefendLib {
         bytes32Array[4] = _parameter[15]; // toBalance
         hashMsg = Util(utilAddress).hashArray(bytes32Array);
         signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[19]), _parameter[20], _parameter[21]);
-        require (signer == owner);
+        // require (signer == owner);
         _;
 
         /*
@@ -126,47 +126,49 @@ contract DefendLib {
         _parameter[42] = _rFromServer
         _parameter[43] = _sFromServer
         */
-        bytes32Array = new bytes32[](8);
-        bytes32Array[0] = _parameter[23]; // from
-        bytes32Array[1] = _parameter[24]; // to
-        bytes32Array[2] = _parameter[25]; // assetID
-        bytes32Array[3] = _parameter[26]; // value
-        bytes32Array[4] = _parameter[27]; // fee
-        bytes32Array[5] = _parameter[28]; // nonce
-        bytes32Array[6] = _parameter[29]; // logID
-        bytes32Array[7] = _parameter[30]; // metadataHash
-        hashMsg = Util(utilAddress).hashArray(bytes32Array);
-        require(hashMsg == _parameter[22]);
-        signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[31]), _parameter[32], _parameter[33]);
-        bytes32Array = new bytes32[](5);
-        bytes32Array[0] = _parameter[34]; // stageHeight
-        bytes32Array[1] = _parameter[35]; // gsn
-        bytes32Array[2] = _parameter[22]; // lightTxHash
-        bytes32Array[3] = _parameter[36]; // fromBalance
-        bytes32Array[4] = _parameter[37]; // toBalance
-        hashMsg = Util(utilAddress).hashArray(bytes32Array);
-        signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[41]), _parameter[42], _parameter[43]);
-        require (signer == owner);
-        _;
+        if (_parameter.length == 44) {
+            bytes32Array = new bytes32[](8);
+            bytes32Array[0] = _parameter[23]; // from
+            bytes32Array[1] = _parameter[24]; // to
+            bytes32Array[2] = _parameter[25]; // assetID
+            bytes32Array[3] = _parameter[26]; // value
+            bytes32Array[4] = _parameter[27]; // fee
+            bytes32Array[5] = _parameter[28]; // nonce
+            bytes32Array[6] = _parameter[29]; // logID
+            bytes32Array[7] = _parameter[30]; // metadataHash
+            hashMsg = Util(utilAddress).hashArray(bytes32Array);
+            require(hashMsg == _parameter[22]);
+            signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[31]), _parameter[32], _parameter[33]);
+            bytes32Array = new bytes32[](5);
+            bytes32Array[0] = _parameter[34]; // stageHeight
+            bytes32Array[1] = _parameter[35]; // gsn
+            bytes32Array[2] = _parameter[22]; // lightTxHash
+            bytes32Array[3] = _parameter[36]; // fromBalance
+            bytes32Array[4] = _parameter[37]; // toBalance
+            hashMsg = Util(utilAddress).hashArray(bytes32Array);
+            signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[41]), _parameter[42], _parameter[43]);
+            require (signer == owner);
+            _;
+        }
     }
 
-    function defendWrongBalance (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
+    function defendWrongBalances (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
         require (_parameter.length == 44);
         if (address(_parameter[23]) == address(_parameter[1])) {
             require( (uint256(_parameter[36]) + uint256(_parameter[26])) == uint256(_parameter[14]));
-            stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[22]].challengedState = false;
+            stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[22]].challengedState = false;
             emit Defend(_parameter[22], true);
         } else if (address(_parameter[23]) == address(_parameter[2])) {
             require((uint256(_parameter[36]) + uint256(_parameter[26])) == uint256(_parameter[15]));
-            stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[22]].challengedState = false;
+            stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[22]].challengedState = false;
             emit Defend(_parameter[22], true);
         } else if (address(_parameter[24]) == address(_parameter[1])) {
             require((uint256(_parameter[36]) - uint256(_parameter[26])) == uint256(_parameter[14]));
-            stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[22]].challengedState = false;
+            stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[22]].challengedState = false;
             emit Defend(_parameter[22], true);
         } else if (address(_parameter[24]) == address(_parameter[2])) {
             require((uint256(_parameter[36]) - uint256(_parameter[26])) == uint256(_parameter[15]));
-            stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[22]].challengedState = false;
+            stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[22]].challengedState = false;
             emit Defend(_parameter[22], true);
         }
     }
@@ -174,13 +176,13 @@ contract DefendLib {
     function defendSkippedGSN (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
         require (_parameter.length == 44);
         require (uint256(_parameter[35]) - uint256(_parameter[13]) == 1);
-        stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[22]].challengedState = false;
+        stages[uint256(_parameter[12])].challengedSkippedGSNList[_parameter[22]].challengedState = false;
         emit Defend(_parameter[22], true);
     }
 
-    function defendExistedProof (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
-        // require (_parameter.length == 22);
-        // stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[0]].challengedState = false;
+    function defendExistProof (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
+        require (_parameter.length == 22);
+        stages[uint256(_parameter[12])].challengedExistedProofList[_parameter[0]].challengedState = false;
         emit Defend(_parameter[0], true);
     }
 }

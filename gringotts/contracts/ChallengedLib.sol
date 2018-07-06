@@ -151,28 +151,30 @@ contract ChallengedLib {
         _parameter[42] = _rFromServer
         _parameter[43] = _sFromServer
         */
-        bytes32Array = new bytes32[](8);
-        bytes32Array[0] = _parameter[23]; // from
-        bytes32Array[1] = _parameter[24]; // to
-        bytes32Array[2] = _parameter[25]; // assetID
-        bytes32Array[3] = _parameter[26]; // value
-        bytes32Array[4] = _parameter[27]; // fee
-        bytes32Array[5] = _parameter[28]; // nonce
-        bytes32Array[6] = _parameter[29]; // logID
-        bytes32Array[7] = _parameter[30]; // metadataHash
-        hashMsg = Util(utilAddress).hashArray(bytes32Array);
-        require(hashMsg == _parameter[22]);
-        signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[31]), _parameter[32], _parameter[33]);
-        bytes32Array = new bytes32[](5);
-        bytes32Array[0] = _parameter[34]; // stageHeight
-        bytes32Array[1] = _parameter[35]; // gsn
-        bytes32Array[2] = _parameter[22]; // lightTxHash
-        bytes32Array[3] = _parameter[36]; // fromBalance
-        bytes32Array[4] = _parameter[37]; // toBalance
-        hashMsg = Util(utilAddress).hashArray(bytes32Array);
-        signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[41]), _parameter[42], _parameter[43]);
-        require (signer == owner);
-        _;
+        if (_parameter.length == 44) {
+            bytes32Array = new bytes32[](8);
+            bytes32Array[0] = _parameter[23]; // from
+            bytes32Array[1] = _parameter[24]; // to
+            bytes32Array[2] = _parameter[25]; // assetID
+            bytes32Array[3] = _parameter[26]; // value
+            bytes32Array[4] = _parameter[27]; // fee
+            bytes32Array[5] = _parameter[28]; // nonce
+            bytes32Array[6] = _parameter[29]; // logID
+            bytes32Array[7] = _parameter[30]; // metadataHash
+            hashMsg = Util(utilAddress).hashArray(bytes32Array);
+            require(hashMsg == _parameter[22]);
+            signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[31]), _parameter[32], _parameter[33]);
+            bytes32Array = new bytes32[](5);
+            bytes32Array[0] = _parameter[34]; // stageHeight
+            bytes32Array[1] = _parameter[35]; // gsn
+            bytes32Array[2] = _parameter[22]; // lightTxHash
+            bytes32Array[3] = _parameter[36]; // fromBalance
+            bytes32Array[4] = _parameter[37]; // toBalance
+            hashMsg = Util(utilAddress).hashArray(bytes32Array);
+            signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[41]), _parameter[42], _parameter[43]);
+            require (signer == owner);
+            _;
+        }
     }
     
     function attach (bytes32[] _parameter) public onlyOwner {
