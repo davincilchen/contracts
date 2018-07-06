@@ -17,8 +17,9 @@ contract Sidechain {
 
     event ProposeDeposit (
         bytes32 indexed _dsn,
-        bytes32 _client,
-        bytes32 _value
+        bytes32 indexed _client,
+        bytes32 _value,
+        bytes32 _assetID
     );
 
     event VerifyReceipt (
@@ -39,8 +40,9 @@ contract Sidechain {
 
     event Withdraw (
         bytes32 indexed _wsn,
-        bytes32 _client,
-        bytes32 _value
+        bytes32 indexed _client,
+        bytes32 _value,
+        bytes32 _assetID
     );
 
     function Sidechain (
@@ -79,9 +81,10 @@ contract Sidechain {
         gad used : 106627
         suggested gas : 150000
         */
-        bytes32[] memory bytes32Array = new bytes32[](2);
+        bytes32[] memory bytes32Array = new bytes32[](3);
         bytes32Array[0] = bytes32(msg.sender);
         bytes32Array[1] = bytes32(msg.value);
+        bytes32Array[2] = bytes32(0);
         delegateToLib(0xdcf12aba, bytes32Array);
     }
     
@@ -97,9 +100,10 @@ contract Sidechain {
         if(assetAddresses[msg.sender] == false) {
             revert();
         } else {
-            bytes32[] memory bytes32Array = new bytes32[](2);
+            bytes32[] memory bytes32Array = new bytes32[](3);
             bytes32Array[0] = bytes32(_from);
             bytes32Array[1] = bytes32(_value);
+            bytes32Array[2] = bytes32(msg.sender);
             delegateToLib(0xdcf12aba, bytes32Array);
             return true;
         }
