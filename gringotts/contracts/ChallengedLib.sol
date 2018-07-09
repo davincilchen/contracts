@@ -191,7 +191,6 @@ contract ChallengedLib {
     }
     
     function challengedRepeatedGSN (bytes32[] _parameter) isSigValid (_parameter) public {
-        require (_parameter.length == 44);
         require (uint256(_parameter[13]) == uint256(_parameter[35]));// compare gsn
         stages[uint256(_parameter[12])].challengedRepeatedGSNList[_parameter[22]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[22]], true, false);
         stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[22]);
@@ -199,7 +198,6 @@ contract ChallengedLib {
     }
 
     function challengedWrongBalance (bytes32[] _parameter) isSigValid (_parameter) public {
-        require (_parameter.length == 44);
         if (address(_parameter[23]) == address(_parameter[1])) {
             if ((uint256(_parameter[36]) + uint256(_parameter[26])) != uint256(_parameter[14])) {
                 stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[22]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[22]], true, false);
@@ -228,17 +226,15 @@ contract ChallengedLib {
     }
 
     function challengedSkippedGSN (bytes32[] _parameter) isSigValid (_parameter) public {
-        require (_parameter.length == 44);
         require (uint256(_parameter[35]) - uint256(_parameter[13]) != 1);
         stages[uint256(_parameter[12])].challengedSkippedGSNList[_parameter[22]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[22]], true, false);
         stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[22]);
         emit Challenge (3, bytes32(msg.sender), _parameter[22]);
     }
 
-    function challengedExistedProof (bytes32[] _parameter) public {
-        require (_parameter.length == 22);
-        stages[uint256(_parameter[12])].challengedExistedProofList[_parameter[0]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], 0x0], true, false);
-        stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[0]);
-        emit Challenge (4, bytes32(msg.sender), _parameter[0]);
-    }
+    // function challengedExistedProof (bytes32[] _parameter) isSigValid (_parameter) public {
+    //     stages[uint256(_parameter[12])].challengedExistedProofList[_parameter[0]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], 0x0], true, false);
+    //     stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[0]);
+    //     emit Challenge (4, bytes32(msg.sender), _parameter[0]);
+    // }
 }

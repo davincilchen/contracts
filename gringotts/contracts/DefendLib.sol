@@ -126,34 +126,31 @@ contract DefendLib {
         _parameter[42] = _rFromServer
         _parameter[43] = _sFromServer
         */
-        if (_parameter.length == 44) {
-            bytes32Array = new bytes32[](8);
-            bytes32Array[0] = _parameter[23]; // from
-            bytes32Array[1] = _parameter[24]; // to
-            bytes32Array[2] = _parameter[25]; // assetID
-            bytes32Array[3] = _parameter[26]; // value
-            bytes32Array[4] = _parameter[27]; // fee
-            bytes32Array[5] = _parameter[28]; // nonce
-            bytes32Array[6] = _parameter[29]; // logID
-            bytes32Array[7] = _parameter[30]; // metadataHash
-            hashMsg = Util(utilAddress).hashArray(bytes32Array);
-            require(hashMsg == _parameter[22]);
-            signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[31]), _parameter[32], _parameter[33]);
-            bytes32Array = new bytes32[](5);
-            bytes32Array[0] = _parameter[34]; // stageHeight
-            bytes32Array[1] = _parameter[35]; // gsn
-            bytes32Array[2] = _parameter[22]; // lightTxHash
-            bytes32Array[3] = _parameter[36]; // fromBalance
-            bytes32Array[4] = _parameter[37]; // toBalance
-            hashMsg = Util(utilAddress).hashArray(bytes32Array);
-            signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[41]), _parameter[42], _parameter[43]);
-            require (signer == owner);
-            _;
-        }
+        bytes32Array = new bytes32[](8);
+        bytes32Array[0] = _parameter[23]; // from
+        bytes32Array[1] = _parameter[24]; // to
+        bytes32Array[2] = _parameter[25]; // assetID
+        bytes32Array[3] = _parameter[26]; // value
+        bytes32Array[4] = _parameter[27]; // fee
+        bytes32Array[5] = _parameter[28]; // nonce
+        bytes32Array[6] = _parameter[29]; // logID
+        bytes32Array[7] = _parameter[30]; // metadataHash
+        hashMsg = Util(utilAddress).hashArray(bytes32Array);
+        require(hashMsg == _parameter[22]);
+        signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[31]), _parameter[32], _parameter[33]);
+        bytes32Array = new bytes32[](5);
+        bytes32Array[0] = _parameter[34]; // stageHeight
+        bytes32Array[1] = _parameter[35]; // gsn
+        bytes32Array[2] = _parameter[22]; // lightTxHash
+        bytes32Array[3] = _parameter[36]; // fromBalance
+        bytes32Array[4] = _parameter[37]; // toBalance
+        hashMsg = Util(utilAddress).hashArray(bytes32Array);
+        signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[41]), _parameter[42], _parameter[43]);
+        require (signer == owner);
+        _;
     }
 
     function defendWrongBalances (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
-        require (_parameter.length == 44);
         if (address(_parameter[23]) == address(_parameter[1])) {
             require( (uint256(_parameter[36]) + uint256(_parameter[26])) == uint256(_parameter[14]));
             stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[22]].challengedState = false;
@@ -174,15 +171,65 @@ contract DefendLib {
     }
 
     function defendSkippedGSN (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
-        require (_parameter.length == 44);
         require (uint256(_parameter[35]) - uint256(_parameter[13]) == 1);
         stages[uint256(_parameter[12])].challengedSkippedGSNList[_parameter[22]].challengedState = false;
         emit Defend(_parameter[22], true);
     }
 
-    function defendExistProof (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
-        require (_parameter.length == 22);
-        stages[uint256(_parameter[12])].challengedExistedProofList[_parameter[0]].challengedState = false;
-        emit Defend(_parameter[0], true);
-    }
+    // function defendExistProof (bytes32[] _parameter) public onlyOwner {
+    //     /*
+
+    //     ===receiptData===
+    //     _parameter[0] = _stageHeight
+    //     _parameter[1] = _gsn
+    //     _parameter[2] = _lightTxHash
+    //     _parameter[3] = _fromBalance
+    //     _parameter[4] = _toBalance
+
+    //     ===sliceData===
+    //     _parameter[5] = _receiptHash
+    //     _parameter[6] = _leafElementLength
+    //     array _leafElement
+    //     _idx
+    //     sliceLength
+    //     slice
+    //     .
+    //     .
+    //     .
+    //     */
+    //     require (stages[uint256(_parameter[0])].challengedExistedProofList[_parameter[2]].lightTxHashes[0] == _parameter[2]);
+    //     bytes32Array = new bytes32[](5);
+    //     bytes32Array[0] = _parameter[0]; // stageHeight
+    //     bytes32Array[1] = _parameter[1]; // gsn
+    //     bytes32Array[2] = _parameter[2]; // lightTxHash
+    //     bytes32Array[3] = _parameter[3]; // fromBalance
+    //     bytes32Array[4] = _parameter[4]; // toBalance
+    //     hashMsg = Util(utilAddress).hashArray(bytes32Array);
+    //     require (hashMsg == receiptHash);
+    //     bytes32[] memory leafElements = new bytes32[](uint256(_parameter[6]));
+    //     uint256 memory i;
+    //     for (i = 7; i < 7 + uint256(_parameter[6]); i++) { // put leafElement to array
+    //         leafElements[i - 7] = _parameter[i + uint256(_parameter[6])];
+    //     }
+    //     i++;
+    //     uint256 memory idx = uint256(_parameter[i]);
+    //     i++;
+    //     uint256 memory sliceLength = uint256(_parameter[i]);
+    //     i++;
+    //     uint256 memory init = i;
+    //     bytes32[] memory slice = new bytes32[](sliceLength);
+    //     for (; i < init + sliceLength; i++) { // put leafHash to slice array
+    //         slice[i] = _parameter[i + sliceLength];
+    //     }
+    //     bytes32 hashResult;
+    //     require (Util(utilAddress).inBytes32Array(_parameter[1], leafElements));
+    //     // content is in leaf array
+    //     hashResult = Util(utilAddress).hashArray(leafElements);
+    //     require (hashResult == slice[0]);
+    //     // hash (content concat) = first node (or second one) hash in slice
+    //     hashResult = Util(utilAddress).calculateSliceRootHash(idx, slice);
+    //     require (hashResult == stages[uint256(_parameter[12])].receiptRootHash);// compare the root from contract and hashResult
+    //     stages[uint256(_parameter[0])].challengedExistedProofList[_parameter[1]].challengedState = false;// receiptHash different from 1 to 4 type
+    //     emit Defend(_parameter[0], true);
+    // }
 }
