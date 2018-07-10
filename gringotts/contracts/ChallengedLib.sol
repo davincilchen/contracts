@@ -24,8 +24,8 @@ contract ChallengedLib {
     struct Stage {
         bytes32 receiptRootHash;
         bytes32 accountRootHash;
-		bytes32 data;
-	    mapping (bytes32 => ChallengedLib.ChallengedInfo) challengedRepeatedGSNList;// repeated gsn
+        bytes32 data;
+        mapping (bytes32 => ChallengedLib.ChallengedInfo) challengedRepeatedGSNList;// repeated gsn
         mapping (bytes32 => ChallengedLib.ChallengedInfo) challengedWrongBalanceList;// wrong balance
         mapping (bytes32 => ChallengedLib.ChallengedInfo) challengedSkippedGSNList;// skipped gsn
         mapping (bytes32 => ChallengedLib.ChallengedInfo) challengedExistedProofList;// exitsProof

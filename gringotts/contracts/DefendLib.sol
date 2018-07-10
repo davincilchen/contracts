@@ -229,7 +229,7 @@ contract DefendLib {
     //     // hash (content concat) = first node (or second one) hash in slice
     //     hashResult = Util(utilAddress).calculateSliceRootHash(idx, slice);
     //     require (hashResult == stages[uint256(_parameter[12])].receiptRootHash);// compare the root from contract and hashResult
-    //     stages[uint256(_parameter[0])].challengedExistedProofList[_parameter[1]].challengedState = false;// receiptHash different from 1 to 4 type
+    //     stages[uint256(_parameter[0])].challengedExistedProofList[_parameter[2]].challengedState = false;// receiptHash different from 1 to 4 type
     //     emit Defend(_parameter[0], true);
     // }
 }
