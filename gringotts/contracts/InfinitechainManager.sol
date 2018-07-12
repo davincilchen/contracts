@@ -1,10 +1,14 @@
 pragma solidity ^0.4.23;
 
 import "./Sidechain.sol";
+import "./Util.sol";
 
 contract InfinitechainManager {
 	address public owner;
-	address public sidechainLibAddress;
+	address public utilAddress;
+	address public cryptoFlowLibAddress;
+	address public challengeLibAddress;
+	address public defendLibAddress;
 	uint256 public sidechainNumber;
 	mapping (uint256 => address) public sidechainAddress;
 	// id = 0, for ledger use
@@ -16,9 +20,12 @@ contract InfinitechainManager {
         _;
     }
 
-	function InfinitechainManager(address _sidechainLibAddress) {
+	function InfinitechainManager(address _utilAddress, address _cryptoFlowLibAddress, address _challengeLibAddress, address _defendLibAddress) {
 		owner = msg.sender;
-		sidechainLibAddress = _sidechainLibAddress;
+		utilAddress = _utilAddress;
+		cryptoFlowLibAddress = _cryptoFlowLibAddress;
+		challengeLibAddress = _challengeLibAddress;
+		defendLibAddress = _defendLibAddress;
 	}
 
 	function deploySidechain(
@@ -28,12 +35,20 @@ contract InfinitechainManager {
 	) 
 		onlyOwner 
 	{
-		address newSidechain = new Sidechain(_sidechainOwner, sidechainLibAddress, _assetAddresses, _instantWithdrawMaximum);
+		address newSidechain = new Sidechain(_sidechainOwner, utilAddress, cryptoFlowLibAddress, challengeLibAddress, defendLibAddress, _assetAddresses, _instantWithdrawMaximum);
 		sidechainAddress[sidechainNumber++] = newSidechain;
 		DeploySidechain(sidechainNumber, newSidechain);
 	}
 
-	function setSidechainLibAddress(address _sidechainLibAddress) onlyOwner {
-		sidechainLibAddress = _sidechainLibAddress;
+	function setCryptoFlowLibAddress(address _cryptoFlowLibAddress) onlyOwner {
+		cryptoFlowLibAddress = _cryptoFlowLibAddress;
+	}
+
+	function setChallengeLibAddress(address _challengeLibAddress) onlyOwner {
+		challengeLibAddress = _challengeLibAddress;
+	}
+
+	function setDefendLibAddress(address _defendLibAddress) onlyOwner {
+		defendLibAddress = _defendLibAddress;
 	}
 }
