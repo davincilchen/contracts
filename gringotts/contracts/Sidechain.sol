@@ -93,7 +93,7 @@ contract Sidechain {
         'withdraw(bytes32[])':           0xfe2b3924
         'instantWithdraw(bytes32[])':    0xbe1946da
         */
-        cryptoFlowLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
+        require(cryptoFlowLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter));
     }
 
     function delegateToChallengedLib (bytes4 _signature, bytes32[] _parameter) public {
@@ -104,7 +104,7 @@ contract Sidechain {
         'challengedSkippedGSN(bytes32[])':                  0x6f62a2d9
         'challengedExistedProof(bytes32[])':                0xbfe6f0e2
         */
-        challengedLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
+        require(challengedLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter));
     }
 
     function delegateToDefendLib (bytes4 _signature, bytes32[] _parameter) public {
@@ -113,7 +113,7 @@ contract Sidechain {
         'defendSkippedGSN(bytes32[])':                       0xdc64db7c
         'defendExistProof(bytes32[])':                       0xe1e59fb4
         */
-        defendLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter);
+        require(defendLibAddress.delegatecall( _signature, uint256(32), uint256(_parameter.length), _parameter));
     }
 
     function () payable {
