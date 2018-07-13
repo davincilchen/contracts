@@ -203,11 +203,13 @@ contract CryptoFlowLib {
         uint256 value = uint256(withdrawalLogs[_parameter[0]].value);
         bytes32 assetID = bytes32(withdrawalLogs[_parameter[0]].assetID);
         address assetAddress = address(_parameter[3]);
-        if (assetAddresses[assetAddress] != false) {
-            Token(assetAddress).transfer(client, value);
-        } else {
+        if (_parameter[3] == bytes32(0)) {
             client.transfer(value);
             withdrawalLogs[_parameter[0]].flag = true;
+        } else if (assetAddresses[assetAddress] != false) {
+            Token(assetAddress).transfer(client, value);
+        } else {
+            revert();
         }
         emit Withdraw (_parameter[0], bytes32(client), bytes32(value), assetID);
     }
@@ -229,12 +231,13 @@ contract CryptoFlowLib {
         withdrawalLogs[wsn].value = _parameter[4];
         withdrawalLogs[wsn].flag = true;
 
-        if (assetAddresses[address(_parameter[3])] != false) {
+        if (_parameter[3] == bytes32(0)) {
+            address(_parameter[1]).transfer(uint256(_parameter[4]));
+        } else if (assetAddresses[address(_parameter[3])] != false) {
             Token(address(_parameter[3])).transfer(address(_parameter[2]), uint256(_parameter[4]));
         } else {
-            address(_parameter[1]).transfer(uint256(_parameter[4]));
+            revert();
         }
-
         emit VerifyReceipt ( 2,
                              _parameter[12],
                              _parameter[0],
