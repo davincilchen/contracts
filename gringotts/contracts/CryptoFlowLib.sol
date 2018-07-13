@@ -234,7 +234,7 @@ contract CryptoFlowLib {
         if (_parameter[3] == bytes32(0)) {
             address(_parameter[1]).transfer(uint256(_parameter[4]));
         } else if (assetAddresses[address(_parameter[3])] != false) {
-            Token(address(_parameter[3])).transfer(address(_parameter[2]), uint256(_parameter[4]));
+            Token(address(_parameter[3])).transfer(address(_parameter[1]), uint256(_parameter[4]));
         } else {
             revert();
         }
