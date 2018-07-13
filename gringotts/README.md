@@ -29,7 +29,7 @@ let env = {
 };
 ```
 
-Start to deploy BOLT contracts and fetching a new sidechain address.
+Start to deploy BOLT contracts and fetching a new booster address.
 
 ```javascript
 > truffle deploy --reset
@@ -39,18 +39,18 @@ Deploying InfinitechainManager...
 Saving successful migration to network...
 ```
 
-Copy the address of InfinitechainManager and follow these instructions to get a new sidechain address.
+Copy the address of InfinitechainManager and follow these instructions to get a new booster address.
 
 These instructions would teach you to deploy a contract which controled by **your address**. Also, it could protect all of the **off-chain** ETH(asset_id: **"0x0"**) depost/remittance/withdrawal behaviors and allow instant withdrawal if the value is under **10** ETH.
 
 ```
 > truffle console
 > i = InfinitechainManager.at('Address of InfinitechainManager')
-> i.deploySidechain("your address", "0x0", "10")
-> i.sidechainAddress(0)
+> i.deployBooster("your address", "0x0", "10")
+> i.boosterAddress(0)
 
-// This is your new sidechain address
+// This is your new booster address
 '0x175b74f11d384245cbc0c1474fe2dc43a5c703fd'
 ```
 
-Remember the sidechain address and we will use it in [Gringotts](https://github.com/BOLT-Protocol/gringotts), an **off-chain** ledger of BOLT protocol.
+Remember the booster address and we will use it in [Gringotts](https://github.com/BOLT-Protocol/gringotts), an **off-chain** ledger of BOLT protocol.

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.15;
 
-import "./SidechainLibrary.sol";
+import "./BoosterLibrary.sol";
 
 contract Stage {
     address public owner; //IFC contract
@@ -14,7 +14,7 @@ contract Stage {
     string public data;
 
     mapping (bytes32 => ObjectionInfo) public objections;
-    bytes32[] public objectionablePaymentHashes;
+    bytes32[] public objectionableLightTxHashes;
 
     struct ObjectionInfo {
         address customer;
@@ -49,19 +49,19 @@ contract Stage {
         data = _data;
     }
 
-    function addObjectionablePaymentHash(bytes32 _paymentHash, address _customer) onlyOwner {
+    function addObjectionableLightTxHash(bytes32 _lightTxHash, address _customer) onlyOwner {
         require (now < objectionTime);
-        require(SidechainLibrary(lib).inBytes32Array(_paymentHash, objectionablePaymentHashes) == false);
-        objections[_paymentHash] = ObjectionInfo(_customer, true, false);
-        objectionablePaymentHashes.push(_paymentHash);
+        require(BoosterLibrary(lib).inBytes32Array(_lightTxHash, objectionableLightTxHashes) == false);
+        objections[_lightTxHash] = ObjectionInfo(_customer, true, false);
+        objectionableLightTxHashes.push(_lightTxHash);
     }
 
-    function resolveObjections(bytes32 _paymentHash) onlyOwner {
-        objections[_paymentHash].objectionSuccess = false;
+    function resolveObjections(bytes32 _lightTxHash) onlyOwner {
+        objections[_lightTxHash].objectionSuccess = false;
     }
 
-    function resolveCompensation(bytes32 _paymentHash) onlyOwner {
-        objections[_paymentHash].getCompensation = true;
+    function resolveCompensation(bytes32 _lightTxHash) onlyOwner {
+        objections[_lightTxHash].getCompensation = true;
     }
 
     function setCompleted() onlyOwner {
@@ -69,13 +69,13 @@ contract Stage {
         completed = true;
     }
 
-    function getObjectionablePaymentHashes() constant returns (bytes32[]) {
-        return objectionablePaymentHashes;
+    function getObjectionableLightTxHashes() constant returns (bytes32[]) {
+        return objectionableLightTxHashes;
     }
 
     function isSettle() constant returns (bool) {
-        for (uint i = 0; i < objectionablePaymentHashes.length; i++) {
-            if (objections[objectionablePaymentHashes[i]].objectionSuccess && !objections[objectionablePaymentHashes[i]].getCompensation) {
+        for (uint i = 0; i < objectionableLightTxHashes.length; i++) {
+            if (objections[objectionableLightTxHashes[i]].objectionSuccess && !objections[objectionableLightTxHashes[i]].getCompensation) {
                 return false;
             }
         }

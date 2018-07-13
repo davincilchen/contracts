@@ -1,13 +1,13 @@
 pragma solidity ^0.4.15;
 
 import "truffle/Assert.sol";
-import "../contracts/SidechainLib.sol";
+import "../contracts/BoosterLib.sol";
 
-contract TestSidechainLib {
+contract TestBoosterLib {
 
 	function testHashArrayInDeposit() {
 
-		address lib = new SidechainLib();
+		address lib = new BoosterLib();
 
 		uint256 _gsn = 15;
 		// 0x000000000000000000000000000000000000000000000000000000000000000f
@@ -22,7 +22,7 @@ contract TestSidechainLib {
 		bytes32Array[1] = _lightTxHash;
 		bytes32Array[2] = bytes32(_fromBalance);
 		bytes32Array[3] = bytes32(_toBalance);
-		bytes32 hashMsg = SidechainLib(lib).hashArray(bytes32Array);			
+		bytes32 hashMsg = BoosterLib(lib).hashArray(bytes32Array);			
 		bytes32 expected = 0xcb994442ed1cc127fcbf05d90e2881f542f5200defe94cd2e58fd81029966a24;
 		Assert.equal(hashMsg, expected, "hashMsg should equal to expected");
 	}
