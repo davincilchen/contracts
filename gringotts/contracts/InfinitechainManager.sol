@@ -1,6 +1,6 @@
 pragma solidity ^0.4.23;
 
-import "./Sidechain.sol";
+import "./Booster.sol";
 import "./Util.sol";
 
 contract InfinitechainManager {
@@ -9,11 +9,11 @@ contract InfinitechainManager {
 	address public cryptoFlowLibAddress;
 	address public challengeLibAddress;
 	address public defendLibAddress;
-	uint256 public sidechainNumber;
-	mapping (uint256 => address) public sidechainAddress;
+	uint256 public boosterNumber;
+	mapping (uint256 => address) public boosterAddress;
 	// id = 0, for ledger use
 
-	event DeploySidechain(uint256 _sidechainId, address _sidechainAddress);
+	event DeployBooster(uint256 _boosterId, address _boosterAddress);
 
 	modifier onlyOwner {
         require(msg.sender == owner);
@@ -28,16 +28,16 @@ contract InfinitechainManager {
 		defendLibAddress = _defendLibAddress;
 	}
 
-	function deploySidechain(
-		address _sidechainOwner,
+	function deployBooster(
+		address _boosterOwner,
 		address[] _assetAddresses,
 		uint256 _instantWithdrawMaximum
 	) 
 		onlyOwner 
 	{
-		address newSidechain = new Sidechain(_sidechainOwner, utilAddress, cryptoFlowLibAddress, challengeLibAddress, defendLibAddress, _assetAddresses, _instantWithdrawMaximum);
-		sidechainAddress[sidechainNumber++] = newSidechain;
-		DeploySidechain(sidechainNumber, newSidechain);
+		address newBooster = new Booster(_boosterOwner, utilAddress, cryptoFlowLibAddress, challengeLibAddress, defendLibAddress, _assetAddresses, _instantWithdrawMaximum);
+		boosterAddress[boosterNumber++] = newBooster;
+		DeployBooster(boosterNumber, newBooster);
 	}
 
 	function setCryptoFlowLibAddress(address _cryptoFlowLibAddress) onlyOwner {
