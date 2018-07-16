@@ -5,7 +5,7 @@ import "./ChallengedLib.sol";
 import "./DefendLib.sol";
 import "./Util.sol";
 
-contract Sidechain {
+contract Booster {
     mapping (address => bool) public assetAddresses;
     uint256 public stageHeight;
     uint256 public instantWithdrawMaximum;
@@ -62,8 +62,8 @@ contract Sidechain {
         bool _challengeState
     );
 
-    function Sidechain (
-        address _sidechainOwner,
+    function Booster (
+        address _boosterOwner,
         address _utilAddress,
         address _cryptoFlowLibAddress,
         address _challengedLibAddress,
@@ -72,7 +72,7 @@ contract Sidechain {
         uint256 _instantWithdrawMaximum
     ) {
         managerAddress = msg.sender;
-        owner = _sidechainOwner;
+        owner = _boosterOwner;
         utilAddress = _utilAddress;
         cryptoFlowLibAddress = _cryptoFlowLibAddress;
         challengedLibAddress = _challengedLibAddress;

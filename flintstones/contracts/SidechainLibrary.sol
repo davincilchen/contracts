@@ -1,6 +1,6 @@
 pragma solidity ^0.4.15;
 
-contract SidechainLibrary{
+contract BoosterLibrary{
     string public version = "1.0.0";
 
     function inBytes32Array(bytes32 data, bytes32[] dataArray) constant returns (bool){

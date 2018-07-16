@@ -1,7 +1,7 @@
 pragma solidity ^0.4.15;
 
 import "./Stage.sol";
-import "./SidechainLibrary.sol";
+import "./BoosterLibrary.sol";
 
 contract IFC {
     address public owner; // The agent service
@@ -13,8 +13,8 @@ contract IFC {
     string public version = "1.0.1";
 
     event AddNewStage(bytes32 indexed _stageHash, address _stageAddress, bytes32 _rootHash);
-    event TakeObjection(bytes32 indexed _stageHash, bytes32 _paymentHash);
-    event Exonerate(bytes32 indexed _stageHash, bytes32 _paymentHash);
+    event TakeObjection(bytes32 indexed _stageHash, bytes32 _lightTxHash);
+    event Exonerate(bytes32 indexed _stageHash, bytes32 _lightTxHash);
     event Finalize(bytes32 indexed _stageHash);
 
     modifier onlyOwner {
@@ -24,7 +24,7 @@ contract IFC {
 
     function IFC(uint _compensation) payable {
         owner = msg.sender;
-        lib = new SidechainLibrary();
+        lib = new BoosterLibrary();
         // initial stage
         address newStage = new Stage(0x0, 0x0, 0x0, 0, 0, 'initial block');
         stageAddress[0x0] = newStage;
@@ -58,41 +58,41 @@ contract IFC {
     function takeObjection(
         bytes32[] agentResponse,
         //agentResponse[0] = _stageHash,
-        //agentResponse[1] = _paymentHash,
+        //agentResponse[1] = _lightTxHash,
         uint8 v,
         bytes32 r,
         bytes32 s)
     {
         require (agentResponse.length == 2);
-        bytes32 hashMsg = SidechainLibrary(lib).hashArray(agentResponse);
-        address signer = SidechainLibrary(lib).verify(hashMsg, v, r, s);
+        bytes32 hashMsg = BoosterLibrary(lib).hashArray(agentResponse);
+        address signer = BoosterLibrary(lib).verify(hashMsg, v, r, s);
         require (signer == owner);
-        Stage(stageAddress[agentResponse[0]]).addObjectionablePaymentHash(agentResponse[1], msg.sender);
+        Stage(stageAddress[agentResponse[0]]).addObjectionableLightTxHash(agentResponse[1], msg.sender);
         TakeObjection(agentResponse[0], agentResponse[1]);
     }
 
-    function exonerate(bytes32 _stageHash, bytes32 _paymentHash, uint _idx, bytes32[] slice, bytes32[] leaf) onlyOwner {
+    function exonerate(bytes32 _stageHash, bytes32 _lightTxHash, uint _idx, bytes32[] slice, bytes32[] leaf) onlyOwner {
         bytes32 hashResult;
-        require (SidechainLibrary(lib).inBytes32Array(_paymentHash, leaf));
+        require (BoosterLibrary(lib).inBytes32Array(_lightTxHash, leaf));
         // content is in leaf array
-        hashResult = SidechainLibrary(lib).hashArray(leaf);
+        hashResult = BoosterLibrary(lib).hashArray(leaf);
         require (hashResult == slice[0]);
         // hash (content concat) = first node (or second one) hash in slice
-        hashResult = SidechainLibrary(lib).calculateSliceRootHash(_idx, slice);
+        hashResult = BoosterLibrary(lib).calculateSliceRootHash(_idx, slice);
         require (hashResult == Stage(stageAddress[_stageHash]).rootHash());
-        Stage(stageAddress[_stageHash]).resolveObjections(_paymentHash);
-        Exonerate(_stageHash, _paymentHash);
+        Stage(stageAddress[_stageHash]).resolveObjections(_lightTxHash);
+        Exonerate(_stageHash, _lightTxHash);
     }
 
-    function payPenalty(bytes32 _stageHash, bytes32[] paymentHashes) onlyOwner {
+    function payPenalty(bytes32 _stageHash, bytes32[] lightTxHashes) onlyOwner {
         address customer;
         bool objectionSuccess;
         bool getCompensation;
-        for (uint i = 0; i < paymentHashes.length; i++) {
-            (customer, objectionSuccess, getCompensation) = Stage(stageAddress[_stageHash]).objections(paymentHashes[i]);
+        for (uint i = 0; i < lightTxHashes.length; i++) {
+            (customer, objectionSuccess, getCompensation) = Stage(stageAddress[_stageHash]).objections(lightTxHashes[i]);
             if (objectionSuccess && !getCompensation) {
                 customer.transfer(compensation);
-                Stage(stageAddress[_stageHash]).resolveCompensation(paymentHashes[i]);
+                Stage(stageAddress[_stageHash]).resolveCompensation(lightTxHashes[i]);
             }
         }
     }
