@@ -29,13 +29,13 @@ contract Sidechain {
     );
 
     event VerifyReceipt (
-        uint256 indexed _type, // { 0: deposit, 1: proposeWithdrawal, 2: instantWithdraw}
-        bytes32 _gsn,
-        bytes32 _lightTxHash,
-        bytes32 _fromBalance,
-        bytes32 _toBalance,
-        bytes32[3] _sigLightTx,
-        bytes32[3] _sigReceipt
+    uint256 indexed _type, // { 0: deposit, 1: proposeWithdrawal, 2: instantWithdrawal }
+    bytes32 _gsn,
+    bytes32 _lightTxHash,
+    bytes32 _fromBalance,
+    bytes32 _toBalance,
+    bytes32[3] _sigLightTx,
+    bytes32[3] _sigReceipt
     );
 
     event Withdraw (

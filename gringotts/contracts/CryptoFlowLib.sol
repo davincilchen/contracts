@@ -74,7 +74,7 @@ contract CryptoFlowLib {
         _parameter[5] = _fee
         _parameter[6] = _nonce
         _parameter[7] = _logID
-        _parameter[8] = _metadataHash
+        _parameter[8] = _clientMetadataHash
 
         ===clientLtxSignature===
         _parameter[9] = _vFromClient
@@ -85,16 +85,17 @@ contract CryptoFlowLib {
         _parameter[12] = _gsn,
         _parameter[13] = _fromBalance,
         _parameter[14] = _toBalance,
+        _parameter[15] = _serverMetadataHash,
 
         ===serverLtxSignature===
-        _parameter[15] = _vFromServer
-        _parameter[16] = _rFromServer
-        _parameter[17] = _sFromServer
+        _parameter[16] = _vFromServer
+        _parameter[17] = _rFromServer
+        _parameter[18] = _sFromServer
 
         ===serverReceiptSignature===
-        _parameter[18] = _vFromServer,
-        _parameter[19] = _rFromServer,
-        _parameter[20] = _sFromServer,
+        _parameter[19] = _vFromServer,
+        _parameter[20] = _rFromServer,
+        _parameter[21] = _sFromServer,
 
         */
         bytes32[] memory bytes32Array = new bytes32[](8);
@@ -105,7 +106,7 @@ contract CryptoFlowLib {
         bytes32Array[4] = _parameter[5]; // fee
         bytes32Array[5] = _parameter[6]; // nonce
         bytes32Array[6] = _parameter[7]; // logID
-        bytes32Array[7] = _parameter[8]; // metadataHash
+        bytes32Array[7] = _parameter[8]; // clientMetadataHash
         bytes32 hashMsg = Util(utilAddress).hashArray(bytes32Array);
         require(hashMsg == _parameter[0]);
         address signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[9]), _parameter[10], _parameter[11]);
@@ -121,14 +122,15 @@ contract CryptoFlowLib {
             revert();
         }
 
-        bytes32Array = new bytes32[](5);
+        bytes32Array = new bytes32[](6);
         bytes32Array[0] = bytes32(stageHeight+1); // stageHeight
         bytes32Array[1] = _parameter[12];         // gsn
         bytes32Array[2] = _parameter[0];          // lightTxHash
         bytes32Array[3] = _parameter[13];         // fromBalance
         bytes32Array[4] = _parameter[14];         // toBalance
+        bytes32Array[5] = _parameter[15];         // serverMetadataHash
         hashMsg = Util(utilAddress).hashArray(bytes32Array);
-        signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[18]), _parameter[19], _parameter[20]);
+        signer = Util(utilAddress).verify(hashMsg, uint8(_parameter[19]), _parameter[20], _parameter[21]);
         require (signer == owner);
         _;
     }
@@ -157,12 +159,12 @@ contract CryptoFlowLib {
                              _parameter[0],
                              _parameter[13],
                              _parameter[14],
-                             [ _parameter[15],
-                               _parameter[16],
-                               _parameter[17]],
-                             [ _parameter[18],
-                               _parameter[19],
-                               _parameter[20]]);
+                             [ _parameter[16],
+                               _parameter[17],
+                               _parameter[18]],
+                             [ _parameter[19],
+                               _parameter[20],
+                               _parameter[21]]);
     }
 
     function proposeWithdrawal (bytes32[] _parameter) isSigValid (_parameter) public {
@@ -183,12 +185,12 @@ contract CryptoFlowLib {
                              _parameter[0],
                              _parameter[13],
                              _parameter[14],
-                             [ _parameter[15],
-                               _parameter[16],
-                               _parameter[17]],
-                             [ _parameter[18],
-                               _parameter[19],
-                               _parameter[20]]);
+                             [ _parameter[16],
+                               _parameter[17],
+                               _parameter[18]],
+                             [ _parameter[19],
+                               _parameter[20],
+                               _parameter[21]]);
     }
 
     function withdraw (bytes32[] _parameter) public {
@@ -243,11 +245,11 @@ contract CryptoFlowLib {
                              _parameter[0],
                              _parameter[13],
                              _parameter[14],
-                             [ _parameter[15],
-                               _parameter[16],
-                               _parameter[17]],
-                             [ _parameter[18],
-                               _parameter[19],
-                               _parameter[20]]);
+                             [ _parameter[16],
+                               _parameter[17],
+                               _parameter[18]],
+                             [ _parameter[19],
+                               _parameter[20],
+                               _parameter[21]]);
     }
 }
