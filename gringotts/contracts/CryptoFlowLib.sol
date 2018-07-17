@@ -11,6 +11,9 @@ contract Token {
 
 contract CryptoFlowLib {
     mapping (address => bool) public assetAddresses;
+    mapping (uint256 => ChallengedLib.Stage) public stages;
+    mapping (bytes32 => CryptoFlowLib.Log) public depositLogs;
+    mapping (bytes32 => CryptoFlowLib.Log) public withdrawalLogs;
     uint256 public stageHeight;
     uint256 public instantWithdrawMaximum;
     uint256 public depositSequenceNumber;
@@ -21,9 +24,7 @@ contract CryptoFlowLib {
     address public cryptoFlowLibAddress;
     address public challengedLibAddress;
     address public defendLibAddress;
-    mapping (uint256 => ChallengedLib.Stage) public stages;
-    mapping (bytes32 => CryptoFlowLib.Log) public depositLogs;
-    mapping (bytes32 => CryptoFlowLib.Log) public withdrawalLogs;
+    address[] public assetAddressesArray;
 
     struct Log {
         bytes32 stage;

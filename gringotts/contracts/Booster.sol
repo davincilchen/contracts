@@ -7,19 +7,20 @@ import "./Util.sol";
 
 contract Booster {
     mapping (address => bool) public assetAddresses;
+    mapping (uint256 => ChallengedLib.Stage) public stages;
+    mapping (bytes32 => CryptoFlowLib.Log) public depositLogs;
+    mapping (bytes32 => CryptoFlowLib.Log) public withdrawalLogs;
+
     uint256 public stageHeight;
     uint256 public instantWithdrawMaximum;
     uint256 public depositSequenceNumber;
     address public owner;
-
     address public utilAddress;
     address public managerAddress;
     address public cryptoFlowLibAddress;
     address public challengedLibAddress;
     address public defendLibAddress;
-    mapping (uint256 => ChallengedLib.Stage) public stages;
-    mapping (bytes32 => CryptoFlowLib.Log) public depositLogs;
-    mapping (bytes32 => CryptoFlowLib.Log) public withdrawalLogs;
+    address[] public assetAddressesArray;
 
     event ProposeDeposit (
         bytes32 indexed _dsn,
@@ -81,7 +82,10 @@ contract Booster {
         stages[stageHeight].data = "genisis stage";
         
         for (uint i=0; i<_assetAddresses.length; i++) {
-            assetAddresses[_assetAddresses[i]] = true;
+            if (assetAddresses[_assetAddresses[i]] == false) {
+                assetAddresses[_assetAddresses[i]] = true;
+                assetAddressesArray.push(_assetAddresses[i]);
+            }
         }
     }
 
@@ -131,11 +135,27 @@ contract Booster {
     }
 
     function setAssetAddress(address asAddress) {
-        assetAddresses[asAddress] = true;
+        if (assetAddresses[asAddress] == false) {
+            assetAddresses[asAddress] = true;
+            assetAddressesArray.push(asAddress);
+        }
     }
 
-    function unsetAssetAddress(address asAddress) {
-        delete assetAddresses[asAddress];
+    // cannot unset array key
+    // function unsetAssetAddress(address asAddress) {
+    //     delete assetAddresses[asAddress];
+
+    //     // remove asset address from assetAddressesArray
+    //     for (uint i=0; i<assetAddressesArray.length; i++) {
+    //         if (assetAddressesArray[i] == asAddress) {
+    //             delete assetAddressesArray[i];
+    //             break;
+    //         }
+    //     }
+    // }
+
+    function getAssetAddressesLength() public constant returns (uint256) {
+        return assetAddressesArray.length;
     }
 
     function tokenFallback(address _from, uint _value) public returns (bool success) {
