@@ -193,8 +193,7 @@ contract DefendLib {
     //     _parameter[5] = _serverMetadataHash
 
     //     ===sliceData===
-    //     _parameter[6] = _receiptHash
-    //     _parameter[7] = _leafElementLength
+    //     _parameter[6] = _leafElementLength
     //     array _leafElement
     //     _idx
     //     sliceLength
@@ -204,32 +203,31 @@ contract DefendLib {
     //     .
     //     */
     //     require (stages[uint256(_parameter[0])].challengedExistedProofList[_parameter[2]].lightTxHashes[0] == _parameter[2]);
-    //     bytes32Array = new bytes32[](6);
+    //     bytes32[] memory bytes32Array = new bytes32[](6);
     //     bytes32Array[0] = _parameter[0]; // stageHeight
     //     bytes32Array[1] = _parameter[1]; // gsn
     //     bytes32Array[2] = _parameter[2]; // lightTxHash
     //     bytes32Array[3] = _parameter[3]; // fromBalance
     //     bytes32Array[4] = _parameter[4]; // toBalance
     //     bytes32Array[5] = _parameter[5]; // serverMetadaHash
-    //     hashMsg = Util(utilAddress).hashArray(bytes32Array);
-    //     require (hashMsg == _parameter[6]);
-    //     bytes32[] memory leafElements = new bytes32[](uint256(_parameter[7]));
-    //     uint256 memory i;
-    //     for (i = 8; i < 8 + uint256(_parameter[7]); i++) { // put leafElement to array
-    //         leafElements[i - 8] = _parameter[i + uint256(_parameter[7])];
+    //     bytes32 hashMsg = Util(utilAddress).hashArray(bytes32Array);
+    //     bytes32[] memory leafElements = new bytes32[](uint256(_parameter[6]));
+    //     uint256 i;
+    //     for (i = 7; i < 7 + uint256(_parameter[6]); i++) { // put leafElement to array
+    //         leafElements[i - 7] = _parameter[i + uint256(_parameter[6])];
     //     }
     //     i++;
-    //     uint256 memory idx = uint256(_parameter[i]);
+    //     uint256 idx = uint256(_parameter[i]);
     //     i++;
-    //     uint256 memory sliceLength = uint256(_parameter[i]);
+    //     uint256 sliceLength = uint256(_parameter[i]);
     //     i++;
-    //     uint256 memory init = i;
+    //     uint256 init = i;
     //     bytes32[] memory slice = new bytes32[](sliceLength);
     //     for (; i < init + sliceLength; i++) { // put leafHash to slice array
     //         slice[i] = _parameter[i + sliceLength];
     //     }
     //     bytes32 hashResult;
-    //     require (Util(utilAddress).inBytes32Array(_parameter[1], leafElements));
+    //     require (Util(utilAddress).inBytes32Array(hashMsg, leafElements));
     //     // content is in leaf array
     //     hashResult = Util(utilAddress).hashArray(leafElements);
     //     require (hashResult == slice[0]);
