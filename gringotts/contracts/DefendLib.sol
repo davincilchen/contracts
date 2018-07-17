@@ -4,8 +4,10 @@ import "./CryptoFlowLib.sol";
 import "./ChallengedLib.sol";
 import "./DefendLib.sol";
 import "./Util.sol";
+import "./EIP20/SafeMath.sol";
 
 contract DefendLib {
+    using SafeMath for uint256;
     mapping (address => bool) public assetAddresses;
     uint256 public stageHeight;
     uint256 public instantWithdrawMaximum;
@@ -155,26 +157,26 @@ contract DefendLib {
 
     function defendWrongBalances (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
         if (address(_parameter[24]) == address(_parameter[1])) {
-            require( (uint256(_parameter[37]) + uint256(_parameter[27])) == uint256(_parameter[14]));
+            require((uint256(_parameter[37]).add(uint256(_parameter[27]))) == uint256(_parameter[14]));
             stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[23]].challengedState = false;
             emit Defend(_parameter[23], true);
         } else if (address(_parameter[24]) == address(_parameter[2])) {
-            require((uint256(_parameter[37]) + uint256(_parameter[27])) == uint256(_parameter[15]));
+            require((uint256(_parameter[37]).add(uint256(_parameter[27]))) == uint256(_parameter[15]));
             stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[23]].challengedState = false;
             emit Defend(_parameter[23], true);
         } else if (address(_parameter[25]) == address(_parameter[1])) {
-            require((uint256(_parameter[37]) - uint256(_parameter[27])) == uint256(_parameter[14]));
+            require((uint256(_parameter[37]).sub(uint256(_parameter[27]))) == uint256(_parameter[14]));
             stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[23]].challengedState = false;
             emit Defend(_parameter[23], true);
         } else if (address(_parameter[25]) == address(_parameter[2])) {
-            require((uint256(_parameter[37]) - uint256(_parameter[27])) == uint256(_parameter[15]));
+            require((uint256(_parameter[37]).sub(uint256(_parameter[27]))) == uint256(_parameter[15]));
             stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[23]].challengedState = false;
             emit Defend(_parameter[23], true);
         }
     }
 
     function defendSkippedGSN (bytes32[] _parameter) isSigValid (_parameter) public onlyOwner {
-        require (uint256(_parameter[36]) - uint256(_parameter[13]) == 1);
+        require (uint256(_parameter[36]).sub(uint256(_parameter[13])) == 1);
         stages[uint256(_parameter[12])].challengedSkippedGSNList[_parameter[23]].challengedState = false;
         emit Defend(_parameter[23], true);
     }
