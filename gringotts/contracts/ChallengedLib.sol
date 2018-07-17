@@ -4,8 +4,10 @@ import "./CryptoFlowLib.sol";
 import "./ChallengedLib.sol";
 import "./DefendLib.sol";
 import "./Util.sol";
+import "./EIP20/SafeMath.sol";
 
 contract ChallengedLib {
+    using SafeMath for uint256;
     mapping (address => bool) public assetAddresses;
     uint256 public stageHeight;
     uint256 public instantWithdrawMaximum;
@@ -202,25 +204,25 @@ contract ChallengedLib {
 
     function challengedWrongBalance (bytes32[] _parameter) isSigValid (_parameter) public {
         if (address(_parameter[24]) == address(_parameter[1])) {
-            if ((uint256(_parameter[37]) + uint256(_parameter[27])) != uint256(_parameter[14])) {
+            if ((uint256(_parameter[37]).add(uint256(_parameter[27]))) != uint256(_parameter[14])) {
                 stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[23]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[23]], true, false);
                 stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[23]);
                 emit Challenge (2, bytes32(msg.sender), _parameter[23]);
             }
         } else if (address(_parameter[24]) == address(_parameter[2])) {
-            if ((uint256(_parameter[37]) + uint256(_parameter[27])) != uint256(_parameter[15])) {
+            if ((uint256(_parameter[37]).add(uint256(_parameter[27]))) != uint256(_parameter[15])) {
                 stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[23]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[23]], true, false);
                 stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[23]);
                 emit Challenge (2, bytes32(msg.sender), _parameter[23]);
             }
         } else if (address(_parameter[25]) == address(_parameter[1])) {
-            if ((uint256(_parameter[37]) - uint256(_parameter[27])) != uint256(_parameter[14])) {
+            if ((uint256(_parameter[37]).sub(uint256(_parameter[27]))) != uint256(_parameter[14])) {
                 stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[23]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[23]], true, false);
                 stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[23]);
                 emit Challenge (2, bytes32(msg.sender), _parameter[23]);
             }
         } else if (address(_parameter[25]) == address(_parameter[2])) {
-            if ((uint256(_parameter[37]) - uint256(_parameter[27])) != uint256(_parameter[15])) {
+            if ((uint256(_parameter[37]).sub(uint256(_parameter[27]))) != uint256(_parameter[15])) {
                 stages[uint256(_parameter[12])].challengedWrongBalanceList[_parameter[23]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[23]], true, false);
                 stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[23]);
                 emit Challenge (2, bytes32(msg.sender), _parameter[23]);
@@ -229,7 +231,7 @@ contract ChallengedLib {
     }
 
     function challengedSkippedGSN (bytes32[] _parameter) isSigValid (_parameter) public {
-        require (uint256(_parameter[36]) - uint256(_parameter[13]) != 1);
+        require (uint256(_parameter[36]).sub(uint256(_parameter[13])) != 1);
         stages[uint256(_parameter[12])].challengedSkippedGSNList[_parameter[23]] = ChallengedLib.ChallengedInfo(msg.sender, [_parameter[0], _parameter[23]], true, false);
         stages[uint256(_parameter[12])].challengedLightTxHashes.push(_parameter[23]);
         emit Challenge (3, bytes32(msg.sender), _parameter[23]);
