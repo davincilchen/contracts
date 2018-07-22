@@ -14,7 +14,9 @@
     "web3": "^0.20.6"
   },
   "dependencies": {
+    "ethereumjs-wallet": "^0.6.0",
     "fs": "0.0.1-security",
-    "minimist": "^1.2.0"
+    "minimist": "^1.2.0",
+    "truffle-wallet-provider": "0.0.5"
   }
 }
