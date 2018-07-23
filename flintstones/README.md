@@ -1,1 +1,0 @@
-# Infinitechain Contract
