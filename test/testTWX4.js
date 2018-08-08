@@ -6,6 +6,8 @@ contract('TWX', function ([owner, donor]) {
     var accounts;
     // in web front-end, use an onload listener and similar to this manual flow ... 
     web3.eth.getAccounts(function(err,res) { accounts = res; });
+    // t = TWX.at("0x9133614a59539e61228de09bfc6018b122060736")
+    // t.getSenderAddress({from: accounts[1]})
 
     it("Caller address (account 0)", function() {
 
@@ -37,6 +39,35 @@ contract('TWX', function ([owner, donor]) {
         });
     });
     
+    it("get contract address (account 0)", function() {
+
+        return TWX.deployed().then(function(instance) {
+            return instance.getContractAdd({from: accounts[0]});
+        }).then(function(address) {
+            // If this callback is called, the transaction was successfully processed.
+            //alert("Transaction successful!")
+            console.log(`Call function successful! getContractAdd ${address}`)
+        }).catch(function(e) {
+        // There was an error! Handle it.
+            //alert("Transaction error!")
+            console.log(`Call function error!`)
+        });
+    });
+
+    it("get contract address (account 1)", function() {
+
+        return TWX.deployed().then(function(instance) {
+            return instance.getContractAdd({from: accounts[1]});
+        }).then(function(address) {
+            // If this callback is called, the transaction was successfully processed.
+            //alert("Transaction successful!")
+            console.log(`Call function successful! getContractAdd ${address}`)
+        }).catch(function(e) {
+        // There was an error! Handle it.
+            //alert("Transaction error!")
+            console.log(`Call function error!`)
+        });
+    });
     
 
     
