@@ -27,6 +27,7 @@ module.exports = {
       host: 'localhost',
       port: 8545,
       network_id: '*',
+      //gas: 14700000 //error
       gas: 4700000
     },
     testnet: {
