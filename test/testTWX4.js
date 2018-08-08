@@ -9,6 +9,12 @@ contract('TWX', function ([owner, donor]) {
     // t = TWX.at("0x9133614a59539e61228de09bfc6018b122060736")
     // t.getSenderAddress({from: accounts[1]})
 
+    // var acc;
+    // acc = eth.accounts
+    // web3.personal.unlockAccount(acc[1]);
+    // t.mint(1, { from: acc[1] , gas: 4000000, gasPrice: 100000000000 } )
+    
+
     it("Caller address (account 0)", function() {
 
         return TWX.deployed().then(function(instance) {
