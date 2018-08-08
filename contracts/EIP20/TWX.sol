@@ -62,7 +62,7 @@ contract TWX is EIP20,Ownable {
 
 	event Mint(uint256 amount, string log);
 	event MintFinished();
-	event Burn(address indexed burner, uint256 value);
+	event Burn(address indexed burner, uint256 value,  string log);
 
 	bool public mintingFinished = false;
 
@@ -124,8 +124,8 @@ contract TWX is EIP20,Ownable {
 	* @param _value The amount of token to be burned.
 	*/
 
-	function burn(uint256 _value) public {
-		_burn(msg.sender, _value);
+	function burn(uint256 _value, string _log) public {
+		_burn(msg.sender, _value, _log);
 	}
 
 	/**
@@ -133,22 +133,29 @@ contract TWX is EIP20,Ownable {
 	* @param _from address The address which you want to send tokens from
 	* @param _value uint256 The amount of token to be burned
 	*/
-	function burnFrom(address _from, uint256 _value) public {
+	function burnFrom(address _from, uint256 _value, string _log) public {
 		require(_value <= allowed[_from][msg.sender]);
 		// Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
 		// this function needs to emit an event with the updated approval.
 		allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
-		_burn(_from, _value);
+		_burn(_from, _value, _log);
 	}
 
-	function _burn(address _who, uint256 _value) internal {
+	function _burn(address _who, uint256 _value, string _log) internal {
 		require(_value <= balances[_who]);
 		// no need to require value <= totalSupply, since that would imply the
 		// sender's balance is greater than the totalSupply, which *should* be an assertion failure
 
 		balances[_who] = balances[_who].sub(_value);
 		totalSupply = totalSupply.sub(_value);
-		emit Burn(_who, _value);
+
+		SupplyInfo info = supplyInfo[supplyInfoCount];
+        info.amount = _value;
+        info.log = _log;
+		info.sender = msg.sender;
+		supplyInfoCount = supplyInfoCount.add(1);
+
+		emit Burn(_who, _value, _log);
 		emit Transfer(_who, address(0), _value);
 	}
 
