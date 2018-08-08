@@ -4,6 +4,7 @@ import "./Ownable.sol";
 
 contract TWX is EIP20,Ownable {
 //contract TWX is EIP20 {
+	using SafeMath for uint256;
 
 	enum TokenOP {
 		MINT,
@@ -12,7 +13,7 @@ contract TWX is EIP20,Ownable {
 
 
 	struct SupplyInfo { // Struct
-	    uint amount;
+	    uint256 amount;
         string log;
         address sender;
 		uint opCode;
@@ -21,15 +22,32 @@ contract TWX is EIP20,Ownable {
     }
 
 
-	uint public constant INITIAL_SUPPLY = 10**(10+18);
-	SupplyInfo[] supplyInfo;
+	uint256 public constant INITIAL_SUPPLY = 10**(10+18);
+	
+
+	// this is the mapping for which we want the
+	// compiler to automatically generate a getter.
+    mapping(uint256 => SupplyInfo) public supplyInfo;
+	uint256 public supplyInfoCount = 0;
+	
+	//SupplyInfo[] supplyInfo;
 
 
 	function TWX() EIP20(INITIAL_SUPPLY, "New Taiwan Dollar X", 18, "TWX") public {
 	//function TWX() EIP20(10**(10+18), "New Taiwan Dollar X", 18, "TWX") public {
-		// EIP20(total supply, name, decimals, symbols)
+	// EIP20(total supply, name, decimals, symbols)
 		
 		
+		SupplyInfo info = supplyInfo[supplyInfoCount];
+        info.amount = INITIAL_SUPPLY;
+        info.log = "init";
+		info.sender = msg.sender;
+
+		supplyInfoCount = supplyInfoCount.add(1);
+		
+
+
+		/*	
 		supplyInfo.push(SupplyInfo({
 			amount: INITIAL_SUPPLY,
 			log: "init",
@@ -37,12 +55,12 @@ contract TWX is EIP20,Ownable {
 			//opCode: MINT
 			opCode: 0
 		}));
-
+		*/
 
 	}
 
 
-	event Mint(uint256 amount);
+	event Mint(uint256 amount, string log);
 	event MintFinished();
 
 	bool public mintingFinished = false;
@@ -65,7 +83,8 @@ contract TWX is EIP20,Ownable {
 	* @return A boolean that indicates if the operation was successful.
 	*/
 	function mint(
-	uint256 _amount
+	uint256 _amount,
+	string _log
 	)
 	public
 	hasMintPermission
@@ -74,7 +93,15 @@ contract TWX is EIP20,Ownable {
 	{
 		totalSupply = totalSupply.add(_amount);
 		balances[owner] = balances[owner].add(_amount);
-		emit Mint(_amount);
+		
+		SupplyInfo info = supplyInfo[supplyInfoCount];
+        info.amount = _amount;
+        info.log = _log;
+		info.sender = msg.sender;
+		supplyInfoCount = supplyInfoCount.add(1);
+
+
+		emit Mint(_amount,_log);
 		emit Transfer(address(0), owner, _amount);
 		return true;
 	}
@@ -93,7 +120,8 @@ contract TWX is EIP20,Ownable {
 
 	// ================================ //
 	function getSupplyInfoCount() public constant returns (uint){
-		return supplyInfo.length;
+		//return supplyInfo.length;
+		return supplyInfoCount;
 	}
 
 
