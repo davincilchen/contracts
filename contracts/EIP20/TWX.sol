@@ -16,8 +16,8 @@ contract TWX is EIP20,Ownable {
 	    uint256 amount;
         string log;
         address sender;
-		uint opCode;
-		//TokenOP opCode;
+		//uint opCode;
+		TokenOP opCode;
         //time
     }
 
@@ -30,7 +30,6 @@ contract TWX is EIP20,Ownable {
     mapping(uint256 => SupplyInfo) public supplyInfo;
 	uint256 public supplyInfoCount = 0;
 	
-	//SupplyInfo[] supplyInfo;
 
 
 	function TWX() EIP20(INITIAL_SUPPLY, "New Taiwan Dollar X", 18, "TWX") public {
@@ -42,21 +41,10 @@ contract TWX is EIP20,Ownable {
         info.amount = INITIAL_SUPPLY;
         info.log = "init";
 		info.sender = msg.sender;
+		info.opCode = TokenOP.MINT;
 
 		supplyInfoCount = supplyInfoCount.add(1);
-		
-
-
-		/*	
-		supplyInfo.push(SupplyInfo({
-			amount: INITIAL_SUPPLY,
-			log: "init",
-			sender: msg.sender,
-			//opCode: MINT
-			opCode: 0
-		}));
-		*/
-
+	
 	}
 
 
@@ -99,6 +87,7 @@ contract TWX is EIP20,Ownable {
         info.amount = _amount;
         info.log = _log;
 		info.sender = msg.sender;
+		info.opCode = TokenOP.MINT;
 		supplyInfoCount = supplyInfoCount.add(1);
 
 
@@ -153,6 +142,7 @@ contract TWX is EIP20,Ownable {
         info.amount = _value;
         info.log = _log;
 		info.sender = msg.sender;
+		info.opCode = TokenOP.BURN;
 		supplyInfoCount = supplyInfoCount.add(1);
 
 		emit Burn(_who, _value, _log);
