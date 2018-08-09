@@ -3,7 +3,6 @@ import "./EIP20.sol";
 import "./Ownable.sol";
 
 contract TWX is EIP20,Ownable {
-//contract TWX is EIP20 {
 	using SafeMath for uint256;
 
 	enum TokenOP {
@@ -11,14 +10,12 @@ contract TWX is EIP20,Ownable {
 		BURN
 	}
 
-
-	struct SupplyInfo { // Struct
+	struct SupplyInfo { 
 	    uint256 amount;
         string log;
         address sender;
-		//uint opCode;
 		TokenOP opCode;
-        //time
+        uint timestamp;
     }
 
 
@@ -33,7 +30,6 @@ contract TWX is EIP20,Ownable {
 
 
 	function TWX() EIP20(INITIAL_SUPPLY, "New Taiwan Dollar X", 18, "TWX") public {
-	//function TWX() EIP20(10**(10+18), "New Taiwan Dollar X", 18, "TWX") public {
 	// EIP20(total supply, name, decimals, symbols)
 		
 		
@@ -42,7 +38,7 @@ contract TWX is EIP20,Ownable {
         info.log = "init";
 		info.sender = msg.sender;
 		info.opCode = TokenOP.MINT;
-
+		info.timestamp = now;
 		supplyInfoCount = supplyInfoCount.add(1);
 	
 	}
@@ -88,6 +84,7 @@ contract TWX is EIP20,Ownable {
         info.log = _log;
 		info.sender = msg.sender;
 		info.opCode = TokenOP.MINT;
+		info.timestamp = now;
 		supplyInfoCount = supplyInfoCount.add(1);
 
 
@@ -97,6 +94,7 @@ contract TWX is EIP20,Ownable {
 	}
 
 
+	//need check
 	/**
 	* @dev Function to stop minting new tokens.
 	* @return True if the operation was successful.
@@ -143,29 +141,14 @@ contract TWX is EIP20,Ownable {
         info.log = _log;
 		info.sender = msg.sender;
 		info.opCode = TokenOP.BURN;
+		info.timestamp = now;
 		supplyInfoCount = supplyInfoCount.add(1);
 
 		emit Burn(_who, _value, _log);
 		emit Transfer(_who, address(0), _value);
 	}
 
-	// ================================ //
-	function getSupplyInfoCount() public constant returns (uint){
-		//return supplyInfo.length;
-		return supplyInfoCount;
-	}
 
 
-	// ========== test part ========== //
-	function getContractAddress() public onlyOwner constant returns (address){
-		return this;
-	}
 
-	function getSenderAddress() public constant returns (address){
-		return msg.sender;
-	}
-
-	function getOwnerAddress() public constant returns (address){
-		return owner;
-	}
 }
